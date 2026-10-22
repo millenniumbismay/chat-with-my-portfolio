@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "ownerName": "Millennium Bismay",
+  "demo": true,
+  "entries": [
+    {
+      "id": "portfolio",
+      "title": "About this portfolio",
+      "kind": "about",
+      "text": "This is a portfolio template with sections for About, Projects, Publications, and Blogs. The owner's real profile and work have not yet been added.",
+      "url": "",
+      "approved": true
+    },
+    {
+      "id": "second-self",
+      "title": "A second self",
+      "kind": "project",
+      "text": "This illustrative project explores a conversational portfolio. The owner selects source material before it becomes available to the assistant. It is sample content, not a claim about the owner's past work.",
+      "url": "",
+      "approved": true
+    },
+    {
+      "id": "private-example",
+      "title": "Unpublished draft",
+      "kind": "note",
+      "text": "This excluded sample demonstrates the approval boundary. Excluded entries must never be sent to the model or returned by the public knowledge endpoint.",
+      "url": "",
+      "approved": false
+    }
+  ]
+}

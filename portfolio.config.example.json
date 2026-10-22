@@ -1,0 +1,57 @@
+{
+  "$schema": "./schema/portfolio.schema.json",
+  "schemaVersion": 1,
+  "id": "your-name",
+  "profile": {
+    "name": "Your Name",
+    "firstName": "Your",
+    "initials": "YN",
+    "sample": true,
+    "tagline": "A place for your work and ideas.",
+    "bio": "Describe what you work on, the questions you care about, and what visitors can explore here.",
+    "about": "Add your background, interests, and the kind of work you want to share.",
+    "email": "",
+    "github": "",
+    "linkedin": "",
+    "interests": ["Artificial intelligence", "Human-centered tools", "Open source"]
+  },
+  "site": {
+    "description": "Projects, publications, and notes on artificial intelligence.",
+    "showStudioLink": true
+  },
+  "assistant": {
+    "name": "Nova",
+    "tagline": "My alter ego. A guide to my work.",
+    "role": "AI assistant and alter ego",
+    "tone": "clear, curious, and encouraging",
+    "behavior": [
+      "Use clear everyday language and short, thoughtful answers.",
+      "A little gentle, dry humor is welcome when natural. Avoid forced jokes, repeated introductions, excessive enthusiasm, and unnecessary emojis.",
+      "Ask one useful follow-up only when it helps."
+    ],
+    "prompt": "Help visitors understand the owner’s work. Use concrete examples and explain technical ideas clearly.",
+    "starterQuestions": [
+      "What are you working on?",
+      "Tell me about your research",
+      "What should I read first?"
+    ]
+  },
+  "sources": {
+    "github": {
+      "enabled": true,
+      "username": ""
+    },
+    "manual": {
+      "enabled": true
+    }
+  },
+  "deployment": {
+    "workerName": "your-name-portfolio",
+    "allowedOrigins": []
+  },
+  "ai": {
+    "provider": "cloudflare",
+    "cloudflareModel": "@cf/zai-org/glm-4.7-flash",
+    "openaiModel": "gpt-4.1-mini"
+  }
+}

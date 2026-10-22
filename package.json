@@ -1,0 +1,41 @@
+{
+  "name": "fieldnotes-portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A forkable minimal portfolio with a configurable AI alter ego and curated knowledge.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "node scripts/build-portfolio.mjs",
+    "start": "node scripts/serve-portfolio.mjs",
+    "test": "node scripts/test-portfolio.mjs",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run format:check && npm run validate && npm run typecheck && npm run build && npm test",
+    "validate": "node scripts/validate.mjs",
+    "init": "node scripts/init.mjs",
+    "deploy": "npm run build && wrangler deploy --config .fieldnotes/wrangler.json",
+    "portfolio:build": "npm run build",
+    "portfolio:preview": "npm start",
+    "portfolio:test": "npm test",
+    "portfolio:deploy": "npm run deploy",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.19",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "esbuild": "0.28.0",
+    "prettier": "3.9.10",
+    "typescript": "5.9.3",
+    "wrangler": "4.92.0"
+  }
+}

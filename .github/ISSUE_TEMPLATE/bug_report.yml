@@ -1,0 +1,13 @@
+name: Bug report
+description: Report a problem with setup, content, or the assistant flow.
+body:
+  - type: textarea
+    attributes:
+      label: What happened?
+      description: Include the expected behavior and steps to reproduce. Do not include API keys or private source text.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Environment
+      placeholder: Node version, OS, and deployment target

@@ -1,0 +1,9 @@
+name: Feature idea
+description: Suggest a useful improvement or source adapter.
+body:
+  - type: textarea
+    attributes:
+      label: What would you like to do?
+      description: Describe the use case and proposed behavior.
+    validations:
+      required: true

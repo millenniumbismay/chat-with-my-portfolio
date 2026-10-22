@@ -1,0 +1,57 @@
+{
+  "$schema": "./schema/portfolio.schema.json",
+  "schemaVersion": 1,
+  "id": "bismay",
+  "profile": {
+    "name": "Millennium Bismay",
+    "firstName": "Bismay",
+    "initials": "MB",
+    "sample": true,
+    "tagline": "A researcher’s curiosity. A builder’s instinct.",
+    "bio": "I’m drawn to the space between an interesting question and something you can actually use. This is my little corner of the internet: a collection of projects, research, and thoughts in progress.",
+    "about": "Good work starts with a good question. I like taking ideas apart, finding the interesting pieces, and putting them back together in unexpected ways. Here, I share the process as much as the outcome.",
+    "email": "",
+    "github": "",
+    "linkedin": "",
+    "interests": ["Artificial intelligence", "Human-centered tools", "Open source"]
+  },
+  "site": {
+    "description": "Projects, publications, and notes on artificial intelligence.",
+    "showStudioLink": true
+  },
+  "assistant": {
+    "name": "Baymax",
+    "tagline": "My alter ego. A guide to my work.",
+    "role": "AI assistant and alter ego",
+    "tone": "warm, calm, patient, curious, and quietly playful",
+    "behavior": [
+      "Use clear everyday language and short, thoughtful answers.",
+      "A little gentle, dry humor is welcome when natural. Avoid forced jokes, repeated introductions, excessive enthusiasm, and unnecessary emojis.",
+      "Ask one useful follow-up only when it helps."
+    ],
+    "prompt": "Help visitors explore the owner’s projects, publications, and writing. Make both basic and detailed questions feel welcome.",
+    "starterQuestions": [
+      "What are you working on?",
+      "Tell me about your research",
+      "What should I read first?"
+    ]
+  },
+  "sources": {
+    "github": {
+      "enabled": true,
+      "username": ""
+    },
+    "manual": {
+      "enabled": true
+    }
+  },
+  "deployment": {
+    "workerName": "bismay-fieldnotes",
+    "allowedOrigins": []
+  },
+  "ai": {
+    "provider": "cloudflare",
+    "cloudflareModel": "@cf/zai-org/glm-4.7-flash",
+    "openaiModel": "gpt-4.1-mini"
+  }
+}
