@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "fieldnotes-portfolio",
+  "name": "chat-with-my-portfolio",
   "main": "dist/server/index.js",
   "compatibility_date": "2026-10-21",
   "workers_dev": true,

@@ -15,7 +15,7 @@ const { values } = parseArgs({
 });
 if (values.help) {
   console.log(
-    'npm run init -- --name "Your Name" --assistant "Nova" --github your-username\nCreates your config and clears inherited AI sources. Local backups go into ignored .fieldnotes/backups/.',
+    'npm run init -- --name "Your Name" --assistant "Nova" --github your-username\nCreates your config and clears inherited AI sources. Local backups go into ignored .portfolio/backups/.',
   );
   process.exit(0);
 }
@@ -58,8 +58,8 @@ if (values.github) {
   config.profile.github = `https://github.com/${values.github}`;
 }
 validateConfig(config);
-await mkdir(join(root, ".fieldnotes/backups"), { recursive: true });
-const backup = await mkdtemp(join(root, ".fieldnotes/backups/setup-"));
+await mkdir(join(root, ".portfolio/backups"), { recursive: true });
+const backup = await mkdtemp(join(root, ".portfolio/backups/setup-"));
 for (const file of ["portfolio.config.json", "content/knowledge.json"])
   await copyFile(join(root, file), join(backup, file.replaceAll("/", "-")));
 await writeFile(join(root, "portfolio.config.json"), JSON.stringify(config, null, 2) + "\n");

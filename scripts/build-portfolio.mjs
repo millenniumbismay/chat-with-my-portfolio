@@ -11,11 +11,11 @@ let build;
 try {
   ({ build } = require("esbuild"));
 } catch {
-  if (!process.env.FIELDNOTES_TOOL_ROOT)
+  if (!process.env.PORTFOLIO_TOOL_ROOT)
     throw new Error(
-      "Run npm install first, or set FIELDNOTES_TOOL_ROOT to an existing node_modules directory for an offline build.",
+      "Run npm install first, or set PORTFOLIO_TOOL_ROOT to an existing node_modules directory for an offline build.",
     );
-  ({ build } = require(join(process.env.FIELDNOTES_TOOL_ROOT, "esbuild")));
+  ({ build } = require(join(process.env.PORTFOLIO_TOOL_ROOT, "esbuild")));
 }
 const apiBase = (process.env.PORTFOLIO_API_URL || "").trim();
 if (apiBase) {
@@ -36,21 +36,21 @@ if (apiBase) {
 const common = {
   bundle: true,
   jsx: "automatic",
-  nodePaths: process.env.FIELDNOTES_TOOL_ROOT ? [process.env.FIELDNOTES_TOOL_ROOT] : [],
+  nodePaths: process.env.PORTFOLIO_TOOL_ROOT ? [process.env.PORTFOLIO_TOOL_ROOT] : [],
   tsconfig: join(root, "tsconfig.json"),
   logLevel: "warning",
 };
-await mkdir(join(root, ".fieldnotes"), { recursive: true });
+await mkdir(join(root, ".portfolio"), { recursive: true });
 await build({
   ...common,
   entryPoints: [join(root, "src/client/render.tsx")],
-  outfile: join(root, ".fieldnotes/render.cjs"),
+  outfile: join(root, ".portfolio/render.cjs"),
   platform: "node",
   format: "cjs",
   define: { "process.env.NODE_ENV": '"production"' },
 });
 const { render, blogPosts, portfolioConfig: config, portfolioContent } = require(
-  join(root, ".fieldnotes/render.cjs"),
+  join(root, ".portfolio/render.cjs"),
 );
 validateContent(portfolioContent);
 const client = await build({
@@ -154,7 +154,7 @@ const workerConfig = {
   observability: { enabled: false },
 };
 await writeFile(
-  join(root, ".fieldnotes/wrangler.json"),
+  join(root, ".portfolio/wrangler.json"),
   JSON.stringify(workerConfig, null, 2) + "\n",
 );
 console.log("Built Cloudflare Worker, GitHub Pages files (dist/pages), and local previews.");

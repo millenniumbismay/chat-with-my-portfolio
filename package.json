@@ -1,5 +1,5 @@
 {
-  "name": "fieldnotes-portfolio",
+  "name": "chat-with-my-portfolio",
   "version": "0.1.0",
   "private": true,
   "description": "A forkable minimal portfolio with a configurable AI alter ego and curated knowledge.",
@@ -17,7 +17,7 @@
     "check": "npm run format:check && npm run validate && npm run typecheck && npm run build && npm test",
     "validate": "node scripts/validate.mjs",
     "init": "node scripts/init.mjs",
-    "deploy": "npm run build && wrangler deploy --config .fieldnotes/wrangler.json",
+    "deploy": "npm run build && wrangler deploy --config .portfolio/wrangler.json",
     "portfolio:build": "npm run build",
     "portfolio:preview": "npm start",
     "portfolio:test": "npm test",

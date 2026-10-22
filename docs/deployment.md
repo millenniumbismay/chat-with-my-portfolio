@@ -11,7 +11,7 @@ npm run dev
 
 The default URL is `http://127.0.0.1:8888`. The dev command rebuilds and restarts the server after source/content changes; refresh the page to see them. This is not a hot-module-replacement server.
 
-The first build validates configuration and knowledge, prerenders pages, bundles the browser app and Worker, and generates `.fieldnotes/wrangler.json`. The generated directory and `.env` are ignored by Git.
+The first build validates configuration and knowledge, prerenders pages, bundles the browser app and Worker, and generates `.portfolio/wrangler.json`. The generated directory and `.env` are ignored by Git.
 
 ## One Cloudflare deployment
 
@@ -20,8 +20,8 @@ Set your worker name in `portfolio.config.json`. Choose a provider and models th
 ```sh
 npx wrangler login
 npm run build
-npx wrangler secret put CLOUDFLARE_ACCOUNT_ID --config .fieldnotes/wrangler.json
-npx wrangler secret put CLOUDFLARE_AI_TOKEN --config .fieldnotes/wrangler.json
+npx wrangler secret put CLOUDFLARE_ACCOUNT_ID --config .portfolio/wrangler.json
+npx wrangler secret put CLOUDFLARE_AI_TOKEN --config .portfolio/wrangler.json
 npm run deploy
 ```
 

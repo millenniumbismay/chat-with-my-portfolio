@@ -9,7 +9,7 @@ import worker from "../dist/server/index.js";
 const root = resolve(import.meta.dirname, "..");
 const require = createRequire(import.meta.url);
 const config = JSON.parse(await readFile(join(root, "portfolio.config.json"), "utf8"));
-const { portfolioContent: content } = require(join(root, ".fieldnotes/render.cjs"));
+const { portfolioContent: content } = require(join(root, ".portfolio/render.cjs"));
 // Tests never call a paid provider, even when the launching shell has credentials.
 for (const key of ["OPENAI_API_KEY", "CLOUDFLARE_AI_TOKEN"]) delete process.env[key];
 let checks = 0;
@@ -323,10 +323,10 @@ try {
 } finally {
   globalThis.fetch = originalFetch;
 }
-await mkdir(join(root, ".fieldnotes"), { recursive: true });
+await mkdir(join(root, ".portfolio"), { recursive: true });
 await build({
   entryPoints: [join(root, "src/client/render.tsx")],
-  outfile: join(root, ".fieldnotes/fork-render.cjs"),
+  outfile: join(root, ".portfolio/fork-render.cjs"),
   bundle: true,
   platform: "node",
   format: "cjs",
@@ -334,7 +334,7 @@ await build({
   tsconfig: join(root, "tsconfig.json"),
   plugins: [plugin],
 });
-const forkHtml = require(join(root, ".fieldnotes/fork-render.cjs")).render();
+const forkHtml = require(join(root, ".portfolio/fork-render.cjs")).render();
 check(
   forkHtml.includes("Alex River") &&
     forkHtml.includes("Ask Nova+") &&

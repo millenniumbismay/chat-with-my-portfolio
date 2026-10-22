@@ -46,7 +46,7 @@
     }
   },
   "deployment": {
-    "workerName": "bismay-fieldnotes",
+    "workerName": "bismay-portfolio",
     "allowedOrigins": []
   },
   "ai": {

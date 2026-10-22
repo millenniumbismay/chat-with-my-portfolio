@@ -22,7 +22,7 @@ export const github: SourceAdapter = {
       {
         headers: {
           Accept: "application/vnd.github+json",
-          "User-Agent": "Fieldnotes-Portfolio",
+          "User-Agent": "Chat-With-My-Portfolio",
           "X-GitHub-Api-Version": "2022-11-28",
         },
         signal: AbortSignal.timeout(15000),

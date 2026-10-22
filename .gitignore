@@ -50,5 +50,6 @@ yarn-error.log*
 !.env.example
 
 # Private local setup state and host-specific project identity
+/.portfolio/
 /.fieldnotes/
 /.openai/

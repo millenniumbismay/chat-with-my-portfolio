@@ -1,8 +1,8 @@
-# Fieldnotes
+# Chat with My Portfolio
 
-**A personal portfolio with an AI people can talk to. Fork it and make it yours.**
+**An AI portfolio you can talk to. Fork it and make it yours.**
 
-Fieldnotes brings your projects, publications, and writing together with an AI guide that can answer questions about the work you choose to share. Visitors can read a paper abstract, open a blog post, or ask a question about a specific project without losing the context of what they were looking at.
+Chat with My Portfolio brings your projects, publications, and writing together with an AI guide that can answer questions about the work you choose to share. Visitors can read a paper abstract, open a blog post, or ask a question about a specific project without losing the context of what they were looking at.
 
 I started this as my own portfolio. My version uses **Baymax**, my AI alter ego. The project is being structured so anyone can use the same foundation with their own name, work, sources, assistant, and voice.
 
@@ -10,7 +10,7 @@ This is an early working starter. The portfolio and curated chat flow work; rich
 
 ## Make your own
 
-Use **[this repository as a template](https://github.com/millenniumbismay/fieldnotes/generate)** for a fresh copy, or **fork it** if you want to keep a connection to upstream changes. Clone your copy, then:
+Use **[this repository as a template](https://github.com/millenniumbismay/chat-with-my-portfolio/generate)** for a fresh copy, or **fork it** if you want to keep a connection to upstream changes. Clone your copy, then:
 
 ```sh
 npm ci
@@ -21,7 +21,7 @@ npm run dev
 
 Requires **Node.js 22.13 or newer**. Open `http://127.0.0.1:8888`.
 
-The setup command creates your configuration and clears the inherited AI sources. It keeps a local backup in the ignored `.fieldnotes/backups/` folder. Sample projects and essays remain clearly marked so you can replace them at your own pace. You can omit `--github`; without `--name`, an interactive terminal asks for your name.
+The setup command creates your configuration and clears the inherited AI sources. It keeps a local backup in the ignored `.portfolio/backups/` folder. Sample projects and essays remain clearly marked so you can replace them at your own pace. You can omit `--github`; without `--name`, an interactive terminal asks for your name.
 
 You do **not** need an AI account or API key to try the design, reading pages, source studio, or demo conversation. Live answers about your own work need approved sources and a configured AI provider.
 
@@ -158,7 +158,7 @@ Build output:
 - `dist/pages/`: static files for GitHub Pages or another static host.
 - `dist/server/index.js`: the portable Worker with page and API handlers.
 - `preview/index.html`: a file preview you can open without a server. It uses illustrative replies.
-- `.fieldnotes/wrangler.json`: generated Cloudflare configuration using your worker name, models, and allowed origins. It contains no provider tokens.
+- `.portfolio/wrangler.json`: generated Cloudflare configuration using your worker name, models, and allowed origins. It contains no provider tokens.
 
 ## Hosting
 
@@ -180,8 +180,8 @@ The Worker can also serve both the portfolio and chat, so you can use a single h
 ```sh
 npx wrangler login
 npm run build
-npx wrangler secret put CLOUDFLARE_ACCOUNT_ID --config .fieldnotes/wrangler.json
-npx wrangler secret put CLOUDFLARE_AI_TOKEN --config .fieldnotes/wrangler.json
+npx wrangler secret put CLOUDFLARE_ACCOUNT_ID --config .portfolio/wrangler.json
+npx wrangler secret put CLOUDFLARE_AI_TOKEN --config .portfolio/wrangler.json
 npm run deploy
 ```
 

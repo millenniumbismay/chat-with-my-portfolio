@@ -27,7 +27,9 @@ type Entry = {
 };
 type Draft = { ownerName: string; demo: boolean; entries: Entry[] };
 const blank = { title: "", kind: "note", text: "", url: "" };
-const storageKey = `fieldnotes:${config.id}:knowledge-v1`;
+const storageKey = `portfolio:${config.id}:knowledge-v1`;
+// Preserve browser drafts saved before the project was renamed.
+const legacyStorageKey = `fieldnotes:${config.id}:knowledge-v1`;
 function validDraft(data: unknown): data is Draft {
   if (!data || typeof data !== "object") return false;
   const draft = data as Draft;
@@ -68,7 +70,7 @@ export default function Studio() {
     let active = true;
     async function load() {
       try {
-        const saved = localStorage.getItem(storageKey);
+        const saved = localStorage.getItem(storageKey) ?? localStorage.getItem(legacyStorageKey);
         if (saved) {
           const parsed = JSON.parse(saved);
           if (validDraft(parsed)) {
