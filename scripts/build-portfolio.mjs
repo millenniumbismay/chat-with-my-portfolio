@@ -49,7 +49,7 @@ await build({
   format: "cjs",
   define: { "process.env.NODE_ENV": '"production"' },
 });
-const { render, blogPosts, portfolioConfig: config, portfolioContent } = require(
+const { render, blogPosts, portfolioConfig: config, portfolioContent, themeBootstrap } = require(
   join(root, ".portfolio/render.cjs"),
 );
 validateContent(portfolioContent);
@@ -86,7 +86,7 @@ function html(studio = false, staticSite = false, post = undefined, blogs = fals
         ? `Blogs & Thoughts — ${config.profile.name}`
         : config.profile.name;
   const description = post?.description || config.site.description;
-  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${escapeHtml(description)}"><meta name="theme-color" content="#ffffff"><meta name="portfolio-static" content="${staticSite}"><meta name="portfolio-api" content="${staticSite ? escapeHtml(apiBase) : ""}"><meta name="portfolio-page" content="${blogs ? "blogs" : studio ? "studio" : post ? "post" : "home"}"><meta name="portfolio-post" content="${post ? escapeHtml(post.id) : ""}"><title>${escapeHtml(title)}</title><link rel="icon" href="data:image/svg+xml,${encodeURIComponent(favicon)}"><style>${css}</style></head><body><div id="root">${render(studio, post?.id, blogs)}</div><script>${js}</script></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${escapeHtml(description)}"><meta name="theme-color" content="#ffffff"><meta name="portfolio-static" content="${staticSite}"><meta name="portfolio-api" content="${staticSite ? escapeHtml(apiBase) : ""}"><meta name="portfolio-page" content="${blogs ? "blogs" : studio ? "studio" : post ? "post" : "home"}"><meta name="portfolio-post" content="${post ? escapeHtml(post.id) : ""}"><title>${escapeHtml(title)}</title><link rel="icon" href="data:image/svg+xml,${encodeURIComponent(favicon)}"><script>${themeBootstrap}</script><style>${css}</style></head><body><div id="root">${render(studio, post?.id, blogs)}</div><script>${js}</script></body></html>`;
 }
 // Remove generated article files so deleted posts cannot remain published.
 await rm(join(root, "dist/pages"), { recursive: true, force: true });

@@ -5,6 +5,7 @@ import { ArrowUpRight, ArrowRight, ArrowUp, X, RotateCcw } from "@/components/ic
 import config from "@/portfolio.config.json";
 import { assistant } from "@/content/assistant";
 import AIDock from "@/components/ai-dock";
+import ThemeToggle from "@/components/theme-toggle";
 import { apiFetch, usesDemoApi } from "@/client/api";
 import type { profile as profileType, Project, Publication } from "@/content/site";
 
@@ -107,18 +108,21 @@ export default function Portfolio({
               </span>
             </AIDock>
           </div>
-          <nav aria-label="Main navigation">
-            {[
-              ["About", "#about"],
-              ["Publications", "#publications"],
-              ["Projects", "#projects"],
-              ["Blogs & Thoughts", "./blogs/"],
-            ].map(([label, href]) => (
-              <a key={href} href={href}>
-                {label}
-              </a>
-            ))}
-          </nav>
+          <div className="header-actions">
+            <nav aria-label="Main navigation">
+              {[
+                ["About", "#about"],
+                ["Publications", "#publications"],
+                ["Projects", "#projects"],
+                ["Blogs & Thoughts", "./blogs/"],
+              ].map(([label, href]) => (
+                <a key={href} href={href}>
+                  {label}
+                </a>
+              ))}
+            </nav>
+            <ThemeToggle />
+          </div>
         </header>
         <main id="main">
           <section className="introduction" id="about" aria-labelledby="name">

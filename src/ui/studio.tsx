@@ -16,6 +16,7 @@ import {
 } from "@/components/icons";
 import { apiFetch } from "@/client/api";
 import { Asterisk } from "./portfolio";
+import ThemeToggle from "@/components/theme-toggle";
 
 type Entry = {
   id: string;
@@ -220,7 +221,10 @@ export default function Studio() {
           <ArrowLeft size={15} />
           Back to portfolio
         </a>
-        <span className="studio-badge">Browser draft</span>
+        <div className="header-actions">
+          <span className="studio-badge">Browser draft</span>
+          <ThemeToggle />
+        </div>
       </header>
       <main>
         <section className="studio-intro">
@@ -272,7 +276,7 @@ export default function Studio() {
                 </label>
                 <label
                   className="studio-item-label"
-                  style={{ fontSize: 10, marginTop: 17, color: "#879276" }}
+                  style={{ fontSize: 10, marginTop: 17, color: "var(--muted)" }}
                 >
                   <input
                     type="checkbox"

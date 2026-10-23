@@ -3,13 +3,14 @@ import { readFile, mkdir } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { join, resolve } from "node:path";
 import { build } from "esbuild";
+import { runInNewContext } from "node:vm";
 import { validateConfig, validateKnowledge } from "./validate.mjs";
 import worker from "../dist/server/index.js";
 
 const root = resolve(import.meta.dirname, "..");
 const require = createRequire(import.meta.url);
 const config = JSON.parse(await readFile(join(root, "portfolio.config.json"), "utf8"));
-const { portfolioContent: content } = require(join(root, ".portfolio/render.cjs"));
+const { portfolioContent: content, themeBootstrap } = require(join(root, ".portfolio/render.cjs"));
 // Tests never call a paid provider, even when the launching shell has credentials.
 for (const key of ["OPENAI_API_KEY", "CLOUDFLARE_AI_TOKEN"]) delete process.env[key];
 let checks = 0;
@@ -114,6 +115,45 @@ check(
   "Static export disables Jekyll",
 );
 check(
+  staticHome.includes(`portfolio:${config.id}:theme`) &&
+    staticHome.indexOf(themeBootstrap) < staticHome.indexOf("<style>") &&
+    staticHome.includes('aria-label="Dark theme"'),
+  "Theme initialization runs before styles and the homepage has an accessible toggle",
+);
+for (const [saved, systemDark, expected] of [
+  ["dark", false, "dark"],
+  ["light", true, "light"],
+  [null, true, "dark"],
+  [null, false, "light"],
+  ["invalid", true, "dark"],
+  ["blocked", true, "dark"],
+]) {
+  const rootElement = { dataset: {} };
+  let themeColor;
+  runInNewContext(themeBootstrap, {
+    localStorage: {
+      getItem: () => {
+        if (saved === "blocked") throw new Error("Storage unavailable");
+        return saved;
+      },
+    },
+    window: { matchMedia: () => ({ matches: systemDark }) },
+    document: {
+      documentElement: rootElement,
+      querySelector: () => ({
+        setAttribute: (name, value) => {
+          themeColor = value;
+        },
+      }),
+    },
+  });
+  check(
+    rootElement.dataset.theme === expected &&
+      themeColor === (expected === "dark" ? "#292d3e" : "#ffffff"),
+    `Theme choice handles saved=${saved}, systemDark=${systemDark}`,
+  );
+}
+check(
   (await readFile(join(root, "dist/pages/studio/index.html"), "utf8")).includes(
     "Choose what I know.",
   ),
@@ -142,6 +182,7 @@ check(
     writingHeader.includes('aria-current="page"'),
   "Writing index keeps the full portfolio navigation and named assistant in its header",
 );
+check(writingHeader.includes('aria-label="Dark theme"'), "Writing index retains the theme toggle");
 check(
   (writingText.match(/>Ask about this<\/button>/g) || []).length === content.posts.length,
   "Every post on the writing index has an ask action",
@@ -252,7 +293,7 @@ const plugin = {
 const compiled = await build({
   stdin: {
     contents:
-      'export {POST} from "@/server/routes/chat"; export {GET as importGithub} from "@/server/routes/import-github"; export {previewFetch} from "@/client/preview";',
+      'export {POST} from "@/server/routes/chat"; export {GET as importGithub} from "@/server/routes/import-github"; export {previewFetch} from "@/client/preview"; export {applyTheme} from "@/lib/theme";',
     resolveDir: root,
     sourcefile: "fork-test.ts",
   },
@@ -263,9 +304,54 @@ const compiled = await build({
   tsconfig: join(root, "tsconfig.json"),
   plugins: [plugin],
 });
-const { POST, importGithub, previewFetch } = await import(
+const { POST, importGithub, previewFetch, applyTheme } = await import(
   "data:text/javascript;base64," + Buffer.from(compiled.outputFiles[0].text).toString("base64")
 );
+// Check persistence and storage failure without any real browser storage.
+const browserGlobals = Object.fromEntries(
+  ["document", "localStorage"].map((name) => [
+    name,
+    Object.getOwnPropertyDescriptor(globalThis, name),
+  ]),
+);
+try {
+  const element = { dataset: { theme: "light" } };
+  let savedChoice;
+  Object.defineProperty(globalThis, "document", {
+    configurable: true,
+    value: { documentElement: element, querySelector: () => null },
+  });
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: {
+      setItem: (key, value) => {
+        savedChoice = [key, value];
+      },
+    },
+  });
+  applyTheme("dark");
+  check(
+    element.dataset.theme === "dark" &&
+      savedChoice[0] === "portfolio:alex-river:theme" &&
+      savedChoice[1] === "dark",
+    "Theme changes persist using the fork's own storage key",
+  );
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: {
+      setItem: () => {
+        throw new Error("Storage unavailable");
+      },
+    },
+  });
+  applyTheme("light");
+  check(element.dataset.theme === "light", "Theme remains switchable when storage is blocked");
+} finally {
+  for (const [name, descriptor] of Object.entries(browserGlobals)) {
+    if (descriptor) Object.defineProperty(globalThis, name, descriptor);
+    else delete globalThis[name];
+  }
+}
 const identity = await (
   await POST(request("/api/chat", { messages: [{ role: "user", content: "Are you Nova+?" }] }), {
     LLM_PROVIDER: "openai",

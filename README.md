@@ -33,6 +33,7 @@ You do **not** need an AI account or API key to try the design, reading pages, s
 - An **Ask about this** action beside every publication, project, and blog entry.
 - A named AI assistant with a configurable role, tone, behavior, and custom prompt.
 - A sticky navigation bar; the AI orb moves beside your initials as its main prompt scrolls away.
+- Light and Palenight-inspired dark themes, with a navigation toggle and a saved per-portfolio preference. The first visit follows the device’s color scheme.
 - A source studio for reviewing the material your assistant can use.
 - GitHub repository-summary imports and manually added professional background, paper abstracts, writing, and notes.
 - Static output for GitHub Pages, plus a Cloudflare Worker for live chat.
