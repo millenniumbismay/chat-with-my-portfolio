@@ -58,6 +58,9 @@
             "type": "string",
             "minLength": 1
           }
+        },
+        "scholar": {
+          "type": "string"
         }
       },
       "required": [
@@ -159,9 +162,35 @@
           },
           "required": ["enabled"],
           "additionalProperties": false
+        },
+        "linkedin": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": ["enabled", "url"],
+          "additionalProperties": false
+        },
+        "scholar": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": ["enabled", "url"],
+          "additionalProperties": false
         }
       },
-      "required": ["github", "manual"],
+      "required": ["github", "manual", "linkedin", "scholar"],
       "additionalProperties": false
     },
     "deployment": {
@@ -178,6 +207,10 @@
             "type": "string",
             "format": "uri"
           }
+        },
+        "databaseId": {
+          "type": "string",
+          "description": "Optional Cloudflare D1 UUID; leave blank for file-backed deployment or local SQLite."
         }
       },
       "required": ["workerName", "allowedOrigins"],

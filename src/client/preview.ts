@@ -19,7 +19,7 @@ export const previewFetch: typeof fetch = async (input, init) => {
   return Response.json(
     {
       error:
-        "Connect an API backend to import GitHub repositories. You can add selected source text manually in this preview.",
+        "This preview uses demo APIs. Open the local server or configure PORTFOLIO_API_URL to use the owner backend and source connectors. You can still draft source text here.",
     },
     { status: 503 },
   );

@@ -43,6 +43,7 @@ export function validateConfig(config) {
   ensure(typeof config.profile.sample === "boolean", "profile.sample must be true or false.");
   ensure(typeof config.profile.email === "string", "profile.email must be text.");
   for (const key of ["github", "linkedin"]) link(config.profile[key], `profile.${key}`);
+  if (config.profile.scholar !== undefined) link(config.profile.scholar, "profile.scholar");
   ensure(
     Array.isArray(config.profile.interests) && config.profile.interests.length <= 20,
     "profile.interests must be an array of at most 20 items.",
@@ -78,6 +79,13 @@ export function validateConfig(config) {
     Array.isArray(config.deployment.allowedOrigins),
     "deployment.allowedOrigins must be an array.",
   );
+  ensure(
+    !config.deployment.databaseId ||
+      /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(
+        config.deployment.databaseId,
+      ),
+    "deployment.databaseId must be blank or a Cloudflare D1 UUID.",
+  );
   for (const origin of config.deployment.allowedOrigins) {
     link(origin, "allowed origin");
     ensure(
@@ -99,6 +107,27 @@ export function validateConfig(config) {
       /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/.test(config.sources.github.username),
     "sources.github.username must be a GitHub username, not a URL.",
   );
+  for (const source of ["linkedin", "scholar"]) {
+    const settings = config.sources[source];
+    ensure(
+      typeof settings?.enabled === "boolean",
+      `sources.${source}.enabled must be true or false.`,
+    );
+    link(settings.url, `sources.${source}.url`);
+    if (settings.url) {
+      const url = new URL(settings.url);
+      ensure(
+        !url.port &&
+          (source === "linkedin"
+            ? ["linkedin.com", "www.linkedin.com"].includes(url.hostname) &&
+              /^\/in\/[a-zA-Z0-9_-]+\/?$/.test(url.pathname)
+            : url.hostname === "scholar.google.com" &&
+              url.pathname === "/citations" &&
+              /^[a-zA-Z0-9_-]{4,64}$/.test(url.searchParams.get("user") || "")),
+        `sources.${source}.url must be a valid ${source} profile URL.`,
+      );
+    }
+  }
 }
 export function validateKnowledge(knowledge) {
   ensure(
@@ -147,6 +176,7 @@ export async function validateProject(root = resolve(import.meta.dirname, ".."))
   const knowledge = JSON.parse(await readFile(join(root, "content/knowledge.json"), "utf8"));
   validateConfig(config);
   validateKnowledge(knowledge);
+  validateKnowledge(JSON.parse(await readFile(join(root, "content/source-drafts.json"), "utf8")));
   return config;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

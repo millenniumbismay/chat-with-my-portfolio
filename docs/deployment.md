@@ -4,7 +4,8 @@
 
 ```sh
 npm ci
-cp .env.example .env
+# Copy .env.example only if you do not already have .env.
+npm run backend:init
 npm run check
 npm run dev
 ```
@@ -45,10 +46,10 @@ If `PORTFOLIO_API_URL` is empty, static hosting uses the explicitly labelled dem
 
 - Edit public content or config, run `npm run check`, and commit the changes.
 - Rebuild/deploy the website to publish public content changes.
-- Export reviewed studio sources into `content/knowledge.json`, then rebuild/deploy the Worker to update live answers.
+- With the owner backend, save and publish reviewed selections directly; no Worker rebuild is needed. Otherwise, export reviewed studio sources into `content/knowledge.json`, then rebuild/deploy the Worker to update live answers.
 - For an identity change on a split deployment, rebuild both the frontend and the Worker.
 
-Automatic source refresh, protected live editing, and managed account connections are not part of the current starter.
+For durable drafts and protected live publishing, follow [backend setup](backend.md): create D1, configure its UUID, apply migrations, and set ADMIN_TOKEN. Automatic source refresh and authenticated third-party account connections are not implemented.
 
 ## Costs and verification
 

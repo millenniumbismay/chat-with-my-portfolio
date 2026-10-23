@@ -2,11 +2,12 @@ import { assistant, identityReply, demoReply } from "@/content/assistant";
 import { assistantPersona } from "@/lib/assistant-persona";
 import { generateAnswer } from "@/lib/llm";
 import { isAllowedOrigin } from "@/lib/origin";
-import { publicKnowledge, selectedContext, rateLimited, readJson } from "@/lib/knowledge";
+import { selectedContext, rateLimited, readJson } from "@/lib/knowledge";
+import { loadPublicKnowledge, stringEnv, type BackendEnv } from "@/server/backend";
 
 type Message = { role: "user" | "assistant"; content: string };
-export async function POST(request: Request, env: Record<string, string> = {}) {
-  if (!isAllowedOrigin(request, env))
+export async function POST(request: Request, env: BackendEnv = {}) {
+  if (!isAllowedOrigin(request, stringEnv(env)))
     return Response.json({ error: "Please use the chat on this website." }, { status: 403 });
   if (rateLimited(request, "chat", 15))
     return Response.json(
@@ -44,7 +45,7 @@ export async function POST(request: Request, env: Record<string, string> = {}) {
   const question = messages.at(-1)?.content.trim();
   if (!question || messages.at(-1)?.role !== "user")
     return Response.json({ error: "Please enter a question." }, { status: 400 });
-  const knowledge = publicKnowledge();
+  const knowledge = await loadPublicKnowledge(env);
   const identity = identityReply(question, knowledge.ownerName);
   if (identity)
     return Response.json(
@@ -76,7 +77,7 @@ export async function POST(request: Request, env: Record<string, string> = {}) {
   );
   try {
     const instructions = `${assistantPersona(knowledge.ownerName)}\nAPPROVED REFERENCE DATA:\n${JSON.stringify(sources.map(({ id, title, kind, text }) => ({ id, title, kind, text })))}`;
-    const answer = await generateAnswer(instructions, messages, env);
+    const answer = await generateAnswer(instructions, messages, stringEnv(env));
     return Response.json(
       { answer, demo: false, sources: sources.map(({ id, title, url }) => ({ id, title, url })) },
       { headers: { "Cache-Control": "no-store" } },

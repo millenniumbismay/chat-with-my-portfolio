@@ -144,6 +144,11 @@ export default function Portfolio({
                   LinkedIn
                 </a>
               )}
+              {profile.scholar && (
+                <a href={profile.scholar} target="_blank" rel="noreferrer">
+                  Google Scholar
+                </a>
+              )}
               {!profile.email && (
                 <button className="link-button" onClick={() => setContact(true)}>
                   Get in touch
@@ -413,11 +418,25 @@ export function Chat({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [runtimeDemo, setRuntimeDemo] = useState(demo);
   const [error, setError] = useState("");
   const bottom = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const started = useRef(false);
   const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    let active = true;
+    void apiFetch("/api/knowledge")
+      .then(async (response) => {
+        if (!response.ok) return;
+        const knowledge = await response.json();
+        if (active && typeof knowledge.demo === "boolean") setRuntimeDemo(knowledge.demo);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
   useEffect(() => {
     dialog.current?.showModal();
     const old = document.body.style.overflow;
@@ -453,6 +472,7 @@ export function Chat({
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Something went wrong. Please try again.");
+      setRuntimeDemo(data.demo === true);
       setMessages([
         ...next,
         { role: "assistant", content: data.answer, sources: data.sources, demo: data.demo },
@@ -486,7 +506,7 @@ export function Chat({
               {assistant.name}
               <span>
                 <span className="status-dot" />
-                {demo ? "Demo · Sample knowledge" : `${assistant.role} / Selected sources`}
+                {runtimeDemo ? "Demo · Sample knowledge" : `${assistant.role} / Selected sources`}
               </span>
             </div>
           </div>
@@ -514,7 +534,7 @@ export function Chat({
               <span className="eyebrow">Your curious companion</span>
               <h2>{assistant.greeting}</h2>
               <p>
-                {demo
+                {runtimeDemo
                   ? `I’m ${owner}’s ${assistant.role}. I’m in demo mode while the real sources are being added. Bring a question; I’ll show you around.`
                   : `I’m ${owner}’s ${assistant.role}. Ask me about their projects, writing, or research. I’ll work from the sources they’ve chosen to share.`}
               </p>
@@ -594,7 +614,7 @@ export function Chat({
           </form>
           <p>
             {assistant.name} / {assistant.role} ·{" "}
-            {demo
+            {runtimeDemo
               ? "Illustrative answers, not the owner’s real experience."
               : "Can make mistakes. Check the selected sources."}
           </p>

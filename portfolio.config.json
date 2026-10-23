@@ -12,8 +12,9 @@
     "about": "Good work starts with a good question. I like taking ideas apart, finding the interesting pieces, and putting them back together in unexpected ways. Here, I share the process as much as the outcome.",
     "email": "",
     "github": "",
-    "linkedin": "",
-    "interests": ["Artificial intelligence", "Human-centered tools", "Open source"]
+    "linkedin": "https://www.linkedin.com/in/millennium-bismay",
+    "interests": ["Artificial intelligence", "Human-centered tools", "Open source"],
+    "scholar": "https://scholar.google.com/citations?user=y_u_thUAAAAJ&hl=en"
   },
   "site": {
     "description": "Projects, publications, and notes on artificial intelligence.",
@@ -43,11 +44,20 @@
     },
     "manual": {
       "enabled": true
+    },
+    "linkedin": {
+      "enabled": true,
+      "url": "https://www.linkedin.com/in/millennium-bismay"
+    },
+    "scholar": {
+      "enabled": true,
+      "url": "https://scholar.google.com/citations?user=y_u_thUAAAAJ&hl=en"
     }
   },
   "deployment": {
     "workerName": "bismay-portfolio",
-    "allowedOrigins": []
+    "allowedOrigins": [],
+    "databaseId": ""
   },
   "ai": {
     "provider": "cloudflare",

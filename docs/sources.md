@@ -4,7 +4,7 @@ The website and the assistant have separate, explicit publication paths. Edit `c
 
 ## Current workflow
 
-Studio imports and edits are browser-local. A new GitHub summary or manual note is excluded until checked. Editing an existing source excludes it again. The JSON export contains only selected entries; replacing the knowledge file and redeploying the Worker is the publishing step.
+Studio keeps a browser draft and can connect to the protected owner backend. New imports and edited entries are excluded until checked. Save the server draft, then publish saved selections to update the assistant without a rebuild. The file-export workflow is still available. See [backend setup and API](backend.md).
 
 Reimporting GitHub currently adds new repositories and preserves existing entries. It does not synchronize changes to previously imported descriptions. There is no background refresh or automatic account connection yet.
 
@@ -32,12 +32,14 @@ A source entry contains:
 4. Add the server route and studio interaction needed for the source, and extend configuration/schema validation if it has settings.
 5. Test import failure, limits, deduplication, approval, and excluded-source behavior. Mock external services in tests.
 
-The GitHub adapter is the first example. It fetches public summaries and intentionally does not authenticate visitors or request private repository access.
+The GitHub, LinkedIn, and Scholar adapters are working examples. LinkedIn accepts chosen profile text; Scholar supports its first public page (up to 100 articles) or a CSV export (up to 500 rows). Blocked Scholar requests report an export fallback. No full paper text, abstracts, citation counts, or detailed LinkedIn OAuth access are imported. Profile imports use stable IDs: unchanged text keeps its selection and changed text needs review again. Missing entries remain for manual review. Public content cards in content/site.ts are updated separately.
 
-RSS, general web pages, and account connections are future work. Authenticated integrations need an owner-only flow and secure server-side credential storage. Do not put tokens in the public configuration, browser local storage, or committed source files.
+The GitHub adapter fetches public summaries and intentionally does not authenticate visitors or request private repository access.
+
+RSS, general web pages, scheduled refreshes, and authenticated third-party account connections are future work. The owner backend already supports durable drafts and publication with an owner token. Authenticated integrations need an owner-only flow and secure server-side credential storage. Do not put tokens in the public configuration, browser local storage, or committed source files.
 
 ## What “approved” means
 
-Approval selects information for the assistant. It is not access control for a public Git repository. `/api/knowledge` exposes the approved text, and the selected context is sent to your configured AI provider when a live answer is requested.
+Only published selections are available to the assistant; saving an approved draft does not publish it. Unpublished database drafts require the owner token. Approval selects information for the assistant. It is not access control for a public Git repository. `/api/knowledge` exposes the approved text, and the selected context is sent to your configured AI provider when a live answer is requested.
 
 Do not commit confidential drafts with `approved: false` and assume they are private. Keep private source material outside the public checkout. If you add an automated refresh later, new or changed material should pass review again before publication.

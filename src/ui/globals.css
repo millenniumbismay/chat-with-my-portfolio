@@ -1359,3 +1359,21 @@ textarea::placeholder {
     justify-content: flex-start;
   }
 }
+
+fieldset.studio-layout {
+  border: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 45px;
+}
+.studio-box small {
+  display: block;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-top: 10px;
+}
+.studio-file-label.is-disabled {
+  opacity: 0.5;
+  cursor: default;
+}

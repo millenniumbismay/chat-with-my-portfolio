@@ -34,8 +34,8 @@ You do **not** need an AI account or API key to try the design, reading pages, s
 - A named AI assistant with a configurable role, tone, behavior, and custom prompt.
 - A sticky navigation bar; the AI orb moves beside your initials as its main prompt scrolls away.
 - Light and Palenight-inspired dark themes, with a navigation toggle and a saved per-portfolio preference. The first visit follows the device’s color scheme.
-- A source studio for reviewing the material your assistant can use.
-- GitHub repository-summary imports and manually added professional background, paper abstracts, writing, and notes.
+- A source studio with optional protected backend storage and publication for reviewed AI knowledge.
+- GitHub summary imports, selected LinkedIn text, Google Scholar public-profile/CSV imports, and manual sources.
 - Static output for GitHub Pages, plus a Cloudflare Worker for live chat.
 - Configuration validation, TypeScript checks, automated tests, and GitHub Actions.
 
@@ -79,26 +79,27 @@ See [all configuration options](docs/configuration.md).
 
 ## Add your work and keep it current
 
-There are two content paths:
+There are two file content paths, plus optional backend publication:
 
 | File                     | What it controls                                                                          |
 | ------------------------ | ----------------------------------------------------------------------------------------- |
 | `portfolio.config.json`  | Your identity, bio, links, interests, assistant, source settings, and deployment defaults |
 | `content/site.ts`        | Projects, publications, and blog entries displayed on the website                         |
-| `content/knowledge.json` | Reviewed reference material available to the assistant                                    |
+| `content/knowledge.json` | File fallback for reviewed AI references before a database snapshot is published          |
 
 New items added to `content/site.ts` appear after a rebuild and deployment. Blog pages are generated from their IDs. The assistant's knowledge is updated separately through reviewed sources; displaying an item on the website does not automatically approve it for AI answers.
 
-For AI updates:
+For AI updates with the backend:
 
-1. Open `/studio/`.
-2. Import public GitHub repository summaries, or add selected source text and its link.
-3. Review the entries. New imports and edited entries start excluded.
-4. Check only the entries you want visitors to ask about.
-5. Export the selected knowledge and replace `content/knowledge.json`.
-6. Turn off demo replies when your real sources and provider are ready, then rebuild and redeploy the Worker.
+1. Run `npm run backend:init`, then start the local server.
+2. Open `/studio/` and load the server draft with the owner token from `.env`.
+3. Import selected LinkedIn text or Scholar publication metadata (public fetch or CSV export), add notes, and review entries.
+4. Select only what visitors may ask about. New and changed imports remain excluded.
+5. Save the server draft, then publish saved selections. The assistant updates without a rebuild.
 
-Studio drafts stay in the current browser. **They do not update the live assistant until exported and deployed.** The owner name comes from configuration; changing an imported knowledge file cannot rename the portfolio.
+For a deployment without a database, export selected knowledge to `content/knowledge.json` and redeploy the Worker. Studio drafts also stay in the current browser; the owner token stays only in tab memory. Saving a server draft does not change the live assistant until publication. The configured owner name remains authoritative.
+
+See [local backend setup, Cloudflare D1 deployment, and API details](docs/backend.md). The reusable template ships with an empty source seed. Imported material stays in the owner database until explicitly published; it is not added to the public repository.
 
 Approved references are public through `/api/knowledge`. An excluded entry is withheld from model requests and that endpoint, but exclusion does not make a committed file private. Keep private drafts and credentials outside a public repository.
 
@@ -111,7 +112,7 @@ Your selected sources
         ↓
 Review and explicit approval
         ↓
-Published knowledge file
+Published knowledge snapshot (database or file fallback)
         ↓
 Relevant references + your assistant's configured persona
         ↓
@@ -128,32 +129,34 @@ Supported providers are **Cloudflare Workers AI** and the **OpenAI Responses API
 
 ## Sources: working now and planned
 
-| Source                | Current support                                                                                                                                                              |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GitHub                | Import up to 100 recently updated public repository summaries; exclude forks and archived repositories; select entries before export. READMEs and code are not imported yet. |
-| Manual sources        | Add chosen background, notes, blog text, project context, and paper abstracts with optional source URLs.                                                                     |
-| Medium / RSS          | Planned adapter; not connected yet.                                                                                                                                          |
-| General URLs / papers | Manual text and link entry today; automatic fetching is planned.                                                                                                             |
-| LinkedIn              | Selected text today. Full profile and post access depends on appropriate platform permissions; sign-in alone is not a complete import.                                       |
-| X / Twitter           | Planned optional connector; API access and cost need to be considered.                                                                                                       |
+| Source                | Current support                                                                                                                                                                           |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GitHub                | Import up to 100 recently updated public repository summaries; exclude forks and archived repositories; select entries before export. READMEs and code are not imported yet.              |
+| Manual sources        | Add chosen background, notes, blog text, project context, and paper abstracts with optional source URLs.                                                                                  |
+| Medium / RSS          | Planned adapter; not connected yet.                                                                                                                                                       |
+| General URLs / papers | Manual text and link entry today; automatic fetching is planned.                                                                                                                          |
+| LinkedIn              | Working selected-text import with profile URL and provenance. Full-profile OAuth and post syncing are not implemented; sign-in alone is not a complete import.                            |
+| Google Scholar        | Working public-profile metadata import (up to 100 articles) with CSV fallback (up to 500 rows). Scholar may block fetching. Full papers, abstracts, and citation counts are not imported. |
+| X / Twitter           | Planned optional connector; API access and cost need to be considered.                                                                                                                    |
 
-A source-adapter interface already lives in `src/sources/`. New adapters produce excluded drafts, so imports remain separate from approval and publication. Account connections, token storage, scheduled refreshes, and owner authentication are not implemented in this version.
+A source-adapter interface already lives in `src/sources/`. New adapters produce excluded drafts, so imports remain separate from approval and publication. The owner backend uses a server-only access token, SQLite locally, and optional Cloudflare D1 in production. Third-party OAuth account connections, account-token storage, and scheduled refreshes remain future work.
 
 ## Run and check the project
 
-| Command             | Purpose                                                                                                       |
-| ------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `npm run init`      | Set up a new owner's configuration and clear inherited AI knowledge                                           |
-| `npm run dev`       | Build, serve locally, and rebuild/restart when source or content changes; refresh the browser after a rebuild |
-| `npm run build`     | Validate and build the static site, Worker, and file previews                                                 |
-| `npm start`         | Serve the existing Worker build on localhost                                                                  |
-| `npm run validate`  | Check config and knowledge shapes                                                                             |
-| `npm run typecheck` | Run TypeScript checks                                                                                         |
-| `npm test`          | Test the existing build and a different owner's configuration without real AI calls                           |
-| `npm run check`     | Run validation, TypeScript, build, and tests together                                                         |
-| `npm run deploy`    | Build and publish the Worker to your Cloudflare account                                                       |
+| Command                | Purpose                                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `npm run init`         | Set up a new owner's configuration and clear inherited AI knowledge                                           |
+| `npm run backend:init` | Generate a local owner token in ignored `.env` for the persistent source backend                              |
+| `npm run dev`          | Build, serve locally, and rebuild/restart when source or content changes; refresh the browser after a rebuild |
+| `npm run build`        | Validate and build the static site, Worker, and file previews                                                 |
+| `npm start`            | Serve the existing Worker build on localhost                                                                  |
+| `npm run validate`     | Check config and knowledge shapes                                                                             |
+| `npm run typecheck`    | Run TypeScript checks                                                                                         |
+| `npm test`             | Test the existing build and a different owner's configuration without real AI calls                           |
+| `npm run check`        | Run validation, TypeScript, build, and tests together                                                         |
+| `npm run deploy`       | Build and publish the Worker to your Cloudflare account                                                       |
 
-Copy `.env.example` to `.env` for local credentials. The build and local server load it; environment variables already set in your shell take precedence. Change `PORT` to use a port other than 8888.
+Use `.env.example` as a reference for local credentials; preserve `.env` if `backend:init` has already created it. The build and local server load it; environment variables already set in your shell take precedence. Change `PORT` to use a port other than 8888.
 
 Build output:
 
@@ -206,20 +209,21 @@ src/
   client/                      Hydration, API routing, and file-preview behavior
   server/                      Worker and HTTP route handlers
   lib/                         Persona, retrieval, provider adapters, and origin checks
-  sources/                     Import-adapter contract, registry, and GitHub adapter
+  sources/                     GitHub, LinkedIn selected-text, and Scholar adapters
+migrations/                    Cloudflare D1 / local SQLite schema
 scripts/                       Setup, validation, build, dev server, and tests
 docs/                          Configuration, sources, and deployment guides
 .github/workflows/             CI and optional Pages publication
 ```
 
-There is no database, user-account system, or always-running server to provision for the current flow. The public portfolio and AI both rebuild from versioned files.
+The file-only flow needs no database. The optional owner backend adds SQLite locally or Cloudflare D1 in production, durable drafts, and live publication. It uses one owner token rather than a multi-user account system. Public website content and configuration still rebuild from versioned files.
 
 ## Where this is going
 
 - More convenient source-link imports, starting with RSS and public writing.
-- Reviewable updates that preserve previous selections and show what changed.
+- Richer import previews and change comparison; basic review of changed imports is already supported.
 - Better retrieval and more precise references as the knowledge base grows.
-- Protected owner workflows for real account connections and live publishing.
+- Third-party OAuth account connectors and scheduled refreshes; owner draft storage and live publishing are already implemented.
 - More control over personality and a more natural conversational experience.
 
 Those are directions, not features already available. The immediate aim is a useful foundation that people can understand, fork, and extend.

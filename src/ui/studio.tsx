@@ -17,6 +17,7 @@ import {
 import { apiFetch } from "@/client/api";
 import { Asterisk } from "./portfolio";
 import ThemeToggle from "@/components/theme-toggle";
+import { mergeImports } from "@/lib/source-merge";
 
 type Entry = {
   id: string;
@@ -25,6 +26,8 @@ type Entry = {
   text: string;
   url: string;
   approved: boolean;
+  sourceId?: string;
+  updatedAt?: string;
 };
 type Draft = { ownerName: string; demo: boolean; entries: Entry[] };
 const blank = { title: "", kind: "note", text: "", url: "" };
@@ -66,6 +69,14 @@ export default function Studio() {
   const [error, setError] = useState("");
   const [storageError, setStorageError] = useState(false);
   const [clearPending, setClearPending] = useState(false);
+  const [ownerToken, setOwnerToken] = useState("");
+  const [serverRevision, setServerRevision] = useState<number | null>(null);
+  const [savedSnapshot, setSavedSnapshot] = useState("");
+  const [serverBusy, setServerBusy] = useState(false);
+  const [linkedinUrl, setLinkedinUrl] = useState(config.sources.linkedin.url);
+  const [linkedinText, setLinkedinText] = useState("");
+  const [scholarUrl, setScholarUrl] = useState(config.sources.scholar.url);
+  const unsaved = savedSnapshot !== JSON.stringify(draft);
   const formRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let active = true;
@@ -134,6 +145,8 @@ export default function Studio() {
       text: form.text.trim(),
       id: editId || crypto.randomUUID(),
       approved: false,
+      sourceId: editId ? draft.entries.find((entry) => entry.id === editId)?.sourceId : "manual",
+      updatedAt: new Date().toISOString(),
     };
     setDraft((d) => ({
       ...d,
@@ -214,6 +227,91 @@ export default function Studio() {
       setError("That file isn’t a valid knowledge.json export.");
     }
   }
+  async function ownerRequest(path: string, method = "GET", body?: unknown) {
+    const response = await apiFetch(path, {
+      method,
+      headers: {
+        Authorization: `Bearer ${ownerToken}`,
+        ...(body ? { "Content-Type": "application/json" } : {}),
+      },
+      ...(body ? { body: JSON.stringify(body) } : {}),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      if (response.status === 401) setServerRevision(null);
+      throw new Error(data.error || "The owner backend could not complete that request.");
+    }
+    return data;
+  }
+  function acceptServerState(data: { draft: Draft; revision: number }) {
+    if (!validDraft(data.draft) || !Number.isInteger(data.revision))
+      throw new Error("The backend returned an invalid draft.");
+    setDraft(data.draft);
+    setServerRevision(data.revision);
+    setSavedSnapshot(JSON.stringify(data.draft));
+  }
+  async function serverAction(action: "load" | "save" | "publish") {
+    if (serverBusy) return;
+    setServerBusy(true);
+    setError("");
+    setNotice("");
+    try {
+      const data =
+        action === "load"
+          ? await ownerRequest("/api/admin/knowledge")
+          : action === "save"
+            ? await ownerRequest("/api/admin/knowledge", "PUT", {
+                revision: serverRevision,
+                draft: { ...draft, version: 1 },
+              })
+            : await ownerRequest("/api/admin/publish", "POST", { revision: serverRevision });
+      acceptServerState(data);
+      setNotice(
+        action === "publish"
+          ? "Published your saved selections. The live assistant now uses these sources; no rebuild is needed."
+          : action === "save"
+            ? "Saved to the backend. Review your selections, then publish when ready."
+            : "Loaded the server draft. New sources are excluded until you select, save, and publish them.",
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "The backend is unavailable.");
+    } finally {
+      setServerBusy(false);
+    }
+  }
+  async function importProfile(source: "linkedin" | "scholar", text?: string) {
+    if (serverBusy) return;
+    setServerBusy(true);
+    setError("");
+    setNotice("");
+    try {
+      const data = await ownerRequest(`/api/admin/import/${source}`, "POST", {
+        url: source === "linkedin" ? linkedinUrl : scholarUrl,
+        ...(text !== undefined ? { text, format: source === "scholar" ? "csv" : "text" } : {}),
+      });
+      if (!Array.isArray(data.entries)) throw new Error("The connector returned invalid entries.");
+      setDraft((current) => ({ ...current, entries: mergeImports(current.entries, data.entries) }));
+      setNotice(
+        `${data.note} Unchanged selections are preserved; changed or new entries need review. The draft is limited to 500 entries. Save the draft to keep this import on the server.`,
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn’t import this profile.");
+    } finally {
+      setServerBusy(false);
+    }
+  }
+  async function importScholarFile(file: File | undefined) {
+    if (!file) return;
+    if (file.size > 750000) {
+      setError("Choose a Scholar CSV export under 750 KB.");
+      return;
+    }
+    try {
+      await importProfile("scholar", await file.text());
+    } catch {
+      setError("Couldn’t read that file. Select a readable Scholar CSV export.");
+    }
+  }
   return (
     <div className="shell studio-shell">
       <header className="studio-header">
@@ -222,7 +320,9 @@ export default function Studio() {
           Back to portfolio
         </a>
         <div className="header-actions">
-          <span className="studio-badge">Browser draft</span>
+          <span className="studio-badge">
+            {serverRevision === null ? "Browser draft" : "Owner backend"}
+          </span>
           <ThemeToggle />
         </div>
       </header>
@@ -240,10 +340,11 @@ export default function Studio() {
         <div className="studio-notice">
           <Info size={17} />
           <p>
-            This workspace is a local drafting tool. Edits{" "}
+            Review what the assistant may use. Edits{" "}
             {storageError ? "are kept in memory for this session" : "are saved in this browser"},
-            and do not change the live assistant. Export selected sources, replace the project’s
-            knowledge file, and redeploy to publish. No accounts are connected here.
+            and stay separate from the live assistant. Connect the owner backend to save and publish
+            selected sources directly, or export a knowledge file for deployment. Profile links do
+            not grant account access.
           </p>
         </div>
         {storageError && (
@@ -265,8 +366,57 @@ export default function Studio() {
         {!ready ? (
           <p className="studio-empty">Loading your workspace…</p>
         ) : (
-          <div className="studio-layout">
+          <fieldset className="studio-layout" disabled={serverBusy}>
             <aside className="studio-controls">
+              <div className="studio-box">
+                <h2>Owner backend</h2>
+                <p>
+                  Save drafts and publish reviewed sources. Your token stays in this tab’s memory.
+                </p>
+                <label className="studio-field">
+                  <span>Owner access token</span>
+                  <input
+                    type="password"
+                    autoComplete="off"
+                    value={ownerToken}
+                    onChange={(event) => {
+                      setOwnerToken(event.target.value);
+                      setServerRevision(null);
+                    }}
+                    placeholder="ADMIN_TOKEN from your server"
+                  />
+                </label>
+                <button
+                  className="button"
+                  disabled={!ownerToken.trim()}
+                  onClick={() => serverAction("load")}
+                >
+                  {serverBusy ? "Working…" : "Load server draft"}
+                </button>
+                <small>
+                  Loading replaces this browser draft. New setup: run npm run backend:init, then
+                  restart the server.
+                </small>
+                {serverRevision !== null && (
+                  <>
+                    <button className="button" onClick={() => serverAction("save")}>
+                      Save server draft
+                    </button>
+                    <button
+                      className="button dark"
+                      disabled={unsaved}
+                      onClick={() => serverAction("publish")}
+                    >
+                      Publish saved selections
+                    </button>
+                    <p className="studio-publish-note">
+                      {unsaved
+                        ? "Save your changes before publishing."
+                        : "Your saved draft is ready to publish."}
+                    </p>
+                  </>
+                )}
+              </div>
               <div className="studio-box">
                 <h2>The person behind it.</h2>
                 <label className="studio-field">
@@ -329,6 +479,83 @@ export default function Studio() {
                     <Github size={14} />
                     {importing ? "Importing…" : "Import repositories"}
                   </button>
+                </div>
+              )}
+              {config.sources.linkedin.enabled && (
+                <div className="studio-box">
+                  <h2>LinkedIn</h2>
+                  <p>
+                    Import selected About, experience, education, projects, or post text.
+                    Full-profile OAuth sync is not available.
+                  </p>
+                  <label className="studio-field">
+                    <span>Profile URL</span>
+                    <input
+                      type="url"
+                      value={linkedinUrl}
+                      onChange={(event) => setLinkedinUrl(event.target.value)}
+                    />
+                  </label>
+                  <label className="studio-field">
+                    <span>Selected profile text</span>
+                    <textarea
+                      maxLength={60000}
+                      value={linkedinText}
+                      onChange={(event) => setLinkedinText(event.target.value)}
+                      placeholder="Copy the sections you want the assistant to know."
+                    />
+                  </label>
+                  <button
+                    className="button dark"
+                    disabled={serverRevision === null || !linkedinText.trim()}
+                    onClick={() => importProfile("linkedin", linkedinText)}
+                  >
+                    Import LinkedIn text
+                  </button>
+                  {serverRevision === null && (
+                    <small>Load the owner backend to enable this connector.</small>
+                  )}
+                </div>
+              )}
+              {config.sources.scholar.enabled && (
+                <div className="studio-box">
+                  <h2>Google Scholar</h2>
+                  <p>
+                    Fetch public publication metadata, or select publications on Scholar and use
+                    Export → CSV if access is blocked.
+                  </p>
+                  <label className="studio-field">
+                    <span>Scholar profile URL</span>
+                    <input
+                      type="url"
+                      value={scholarUrl}
+                      onChange={(event) => setScholarUrl(event.target.value)}
+                    />
+                  </label>
+                  <button
+                    className="button dark"
+                    disabled={serverRevision === null || !scholarUrl.trim()}
+                    onClick={() => importProfile("scholar")}
+                  >
+                    Fetch publications
+                  </button>
+                  <label
+                    className={`studio-file-label${serverRevision === null ? " is-disabled" : ""}`}
+                  >
+                    <Upload size={12} /> Import Scholar CSV
+                    <input
+                      type="file"
+                      accept="text/csv,.csv"
+                      disabled={serverRevision === null}
+                      onChange={(event) => {
+                        void importScholarFile(event.target.files?.[0]);
+                        event.target.value = "";
+                      }}
+                    />
+                  </label>
+                  {serverRevision === null && (
+                    <small>Load the owner backend to enable this connector.</small>
+                  )}
                 </div>
               )}
               {config.sources.manual.enabled && (
@@ -513,7 +740,7 @@ export default function Studio() {
                 </article>
               ))}
             </section>
-          </div>
+          </fieldset>
         )}
       </main>
       <footer className="studio-footer">

@@ -60,12 +60,20 @@ if (values.github) {
 validateConfig(config);
 await mkdir(join(root, ".portfolio/backups"), { recursive: true });
 const backup = await mkdtemp(join(root, ".portfolio/backups/setup-"));
-for (const file of ["portfolio.config.json", "content/knowledge.json"])
+for (const file of [
+  "portfolio.config.json",
+  "content/knowledge.json",
+  "content/source-drafts.json",
+])
   await copyFile(join(root, file), join(backup, file.replaceAll("/", "-")));
 await writeFile(join(root, "portfolio.config.json"), JSON.stringify(config, null, 2) + "\n");
 await writeFile(
   join(root, "content/knowledge.json"),
   JSON.stringify({ version: 1, ownerName: name, demo: true, entries: [] }, null, 2) + "\n",
+);
+await writeFile(
+  join(root, "content/source-drafts.json"),
+  JSON.stringify({ version: 1, ownerName: name, demo: false, entries: [] }, null, 2) + "\n",
 );
 console.log(
   `Configured ${name} and ${assistantName}. Inherited AI sources were cleared; demo mode is on.\nBackup: ${backup}\nNext: edit content/site.ts, then run npm run check and npm run dev.`,

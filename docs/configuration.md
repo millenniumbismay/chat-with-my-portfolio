@@ -4,9 +4,9 @@
 
 | Section                      | Fields and behavior                                                                                                                                                                               |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                         | A lowercase slug that namespaces browser source drafts. Give a fork its own ID.                                                                                                                   |
+| `id`                         | A lowercase slug that namespaces browser drafts, theme preference, and database state. Give a fork its own ID.                                                                                    |
 | `profile`                    | Name, first name, initials, sample flag, tagline, bio, background, email, profile links, and interests. URLs must use HTTPS. The `sample` flag identifies illustrative profile content in the UI. |
-| `site`                       | Metadata description and `showStudioLink`. Hiding the studio link is cosmetic; `/studio/` remains reachable and still edits only local drafts.                                                    |
+| `site`                       | Metadata description and `showStudioLink`. Hiding the studio link is cosmetic; `/studio/` remains reachable; backend draft operations require the owner token.                                    |
 | `assistant.name`             | Drives the CTA, chat title, greetings, name recognition, and live persona. No other code edit is needed.                                                                                          |
 | `assistant.role`             | The assistant's description, such as “AI assistant and alter ego” or “AI research guide.” It must remain understandable as AI.                                                                    |
 | `assistant.tagline`          | Short description beside the homepage chat prompt.                                                                                                                                                |
@@ -15,9 +15,11 @@
 | `assistant.prompt`           | Your own directions for the assistant's focus. This is added to the server's persona instructions.                                                                                                |
 | `assistant.starterQuestions` | One to six suggested questions, also used by the surprise-question button.                                                                                                                        |
 | `sources.github`             | Enable/disable the GitHub importer and prefill a username. This does not connect a private account.                                                                                               |
+| `sources.linkedin`           | Enable/disable chosen-text imports and prefill a LinkedIn profile URL.                                                                                                                            |
+| `sources.scholar`            | Enable/disable public-profile or CSV publication imports and prefill a Scholar URL.                                                                                                               |
 | `sources.manual`             | Enable/disable adding source text manually in the studio.                                                                                                                                         |
 | `ai`                         | Default provider (`cloudflare` or `openai`) and each provider's model name. Server environment variables can override defaults.                                                                   |
-| `deployment`                 | Your Worker name and a list of allowed frontend origins. Origins must be exact HTTPS origins without paths or trailing slashes.                                                                   |
+| `deployment`                 | Your Worker name, optional D1 database UUID in `databaseId`, and a list of allowed frontend origins. Origins must be exact HTTPS origins without paths or trailing slashes.                       |
 
 Example behavior settings:
 
@@ -54,3 +56,5 @@ Local commands load `.env` if present. The shell takes precedence over that file
 | `PORT`                  | Local preview port; default 8888                                                                              |
 
 Configuration validation enforces bounded text, explicit source approval, safe source URLs, and nonempty starter questions. Model output still requires evaluation: passing a configuration check is not proof that every model will follow every behavioral instruction.
+
+The `profile.scholar` field adds a public Google Scholar link. Source URLs must be supported LinkedIn or Scholar profile addresses. Keep `deployment.databaseId` blank until you create a Cloudflare D1 database; local development uses SQLite automatically. See [backend setup](backend.md). Existing configs need the new `sources.linkedin` and `sources.scholar` blocks from the example.

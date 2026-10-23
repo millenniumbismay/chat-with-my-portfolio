@@ -164,6 +164,18 @@ const workerConfig = {
     ALLOWED_ORIGIN: config.deployment.allowedOrigins.join(","),
   },
   observability: { enabled: false },
+  ...(config.deployment.databaseId
+    ? {
+        d1_databases: [
+          {
+            binding: "PORTFOLIO_DB",
+            database_name: `${config.id}-portfolio`,
+            database_id: config.deployment.databaseId,
+            migrations_dir: "../migrations",
+          },
+        ],
+      }
+    : {}),
 };
 await writeFile(
   join(root, ".portfolio/wrangler.json"),

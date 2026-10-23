@@ -13,7 +13,8 @@
     "email": "",
     "github": "",
     "linkedin": "",
-    "interests": ["Artificial intelligence", "Human-centered tools", "Open source"]
+    "interests": ["Artificial intelligence", "Human-centered tools", "Open source"],
+    "scholar": ""
   },
   "site": {
     "description": "Projects, publications, and notes on artificial intelligence.",
@@ -43,11 +44,20 @@
     },
     "manual": {
       "enabled": true
+    },
+    "linkedin": {
+      "enabled": true,
+      "url": ""
+    },
+    "scholar": {
+      "enabled": true,
+      "url": ""
     }
   },
   "deployment": {
     "workerName": "your-name-portfolio",
-    "allowedOrigins": []
+    "allowedOrigins": [],
+    "databaseId": ""
   },
   "ai": {
     "provider": "cloudflare",
