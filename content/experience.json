@@ -1,0 +1,65 @@
+{
+  "$schema": "../schema/experience.schema.json",
+  "entries": [
+    {
+      "id": "amazon-scientist-ii",
+      "role": "Applied Scientist II",
+      "organization": "Amazon",
+      "startDate": "2026-06",
+      "endDate": null,
+      "location": "Santa Clara, California",
+      "description": "Building Amazon Quick, an enterprise AI assistant.",
+      "url": "https://www.linkedin.com/in/millennium-bismay"
+    },
+    {
+      "id": "amazon-scientist-i",
+      "role": "Applied Scientist I",
+      "organization": "Amazon",
+      "startDate": "2025-01",
+      "endDate": "2026-06",
+      "location": "Santa Clara, California",
+      "description": "Retrieval, context management, adaptive feeds, data generation, and small language model fine-tuning.",
+      "url": "https://www.linkedin.com/in/millennium-bismay"
+    },
+    {
+      "id": "western-digital-intern",
+      "role": "Data Science Intern",
+      "organization": "Western Digital",
+      "startDate": "2024-05",
+      "endDate": "2024-12",
+      "location": "Remote · Bryan, Texas",
+      "description": "Multimodal agentic retrieval, document reasoning, and graph-based fraud analysis.",
+      "url": "https://www.linkedin.com/in/millennium-bismay"
+    },
+    {
+      "id": "tamu-research-assistant",
+      "role": "Graduate Research Assistant",
+      "organization": "Texas A&M University",
+      "startDate": "2024-01",
+      "endDate": "2024-05",
+      "location": "College Station, Texas",
+      "description": "Conversational tutoring with personalized feedback and retrieval-augmented learning.",
+      "url": "https://www.linkedin.com/in/millennium-bismay"
+    },
+    {
+      "id": "hpe-intern",
+      "role": "Software Engineer Intern",
+      "organization": "Hewlett Packard Enterprise",
+      "startDate": "2023-05",
+      "endDate": "2023-08",
+      "location": "Spring, Texas",
+      "description": "Language-model question answering over tables and storage product comparison tools.",
+      "url": "https://www.linkedin.com/in/millennium-bismay"
+    },
+    {
+      "id": "kotak-ml-engineer",
+      "role": "Machine Learning Engineer II",
+      "organization": "Kotak Mahindra Bank",
+      "startDate": "2021-11",
+      "endDate": "2022-07",
+      "location": "Bengaluru, India",
+      "description": "Financial-data pipelines, forecasting, customer segmentation, and model deployment workflows.",
+      "url": "https://www.linkedin.com/in/millennium-bismay"
+    }
+  ]
+}

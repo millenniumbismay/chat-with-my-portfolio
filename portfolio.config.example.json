@@ -14,11 +14,20 @@
     "github": "",
     "linkedin": "",
     "interests": ["Artificial intelligence", "Human-centered tools", "Open source"],
-    "scholar": ""
+    "scholar": "",
+    "x": "",
+    "medium": ""
   },
   "site": {
     "description": "Projects, publications, and notes on artificial intelligence.",
-    "showStudioLink": true
+    "showStudioLink": true,
+    "socialLinks": ["github", "linkedin", "scholar", "x", "medium", "email"],
+    "sections": {
+      "experience": true,
+      "publications": true,
+      "projects": true,
+      "blogs": true
+    }
   },
   "assistant": {
     "name": "Nova",

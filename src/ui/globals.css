@@ -1377,3 +1377,56 @@ fieldset.studio-layout {
   opacity: 0.5;
   cursor: default;
 }
+
+/* Quiet brand marks and CV-style entries, using the shared light/dark tokens. */
+.social-links {
+  gap: 8px;
+}
+.social-link {
+  width: 40px;
+  height: 40px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--muted);
+}
+.social-link:hover {
+  color: var(--blue);
+  background: var(--hover);
+}
+.social-link > svg {
+  width: 21px;
+  height: 21px;
+}
+.experience-organization {
+  font-size: 13px;
+  margin-top: 3px;
+}
+.experience-location {
+  font-size: 12px;
+  color: var(--muted);
+  margin-left: 12px;
+}
+.publication-authors {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 5px 0 8px;
+}
+.publication-authors strong {
+  font-weight: 550;
+  color: var(--ink);
+}
+@media (max-width: 650px) {
+  .experience-list .entry-heading {
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+  .experience-list .entry-date {
+    width: 100%;
+  }
+  .experience-location {
+    display: block;
+    margin-left: 0;
+  }
+}

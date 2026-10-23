@@ -15,7 +15,7 @@ const { values } = parseArgs({
 });
 if (values.help) {
   console.log(
-    'npm run init -- --name "Your Name" --assistant "Nova" --github your-username\nCreates your config and clears inherited AI sources. Local backups go into ignored .portfolio/backups/.',
+    'npm run init -- --name "Your Name" --assistant "Nova" --github your-username\nCreates your config and clears inherited experience, publications, and AI sources. Local backups go into ignored .portfolio/backups/.',
   );
   process.exit(0);
 }
@@ -64,6 +64,8 @@ for (const file of [
   "portfolio.config.json",
   "content/knowledge.json",
   "content/source-drafts.json",
+  "content/experience.json",
+  "content/publications.json",
 ])
   await copyFile(join(root, file), join(backup, file.replaceAll("/", "-")));
 await writeFile(join(root, "portfolio.config.json"), JSON.stringify(config, null, 2) + "\n");
@@ -75,6 +77,12 @@ await writeFile(
   join(root, "content/source-drafts.json"),
   JSON.stringify({ version: 1, ownerName: name, demo: false, entries: [] }, null, 2) + "\n",
 );
+for (const kind of ["experience", "publications"]) {
+  await writeFile(
+    join(root, `content/${kind}.json`),
+    JSON.stringify({ $schema: `../schema/${kind}.schema.json`, entries: [] }, null, 2) + "\n",
+  );
+}
 console.log(
-  `Configured ${name} and ${assistantName}. Inherited AI sources were cleared; demo mode is on.\nBackup: ${backup}\nNext: edit content/site.ts, then run npm run check and npm run dev.`,
+  `Configured ${name} and ${assistantName}. Inherited experience, publications, and AI sources were cleared; demo mode is on.\nBackup: ${backup}\nNext: edit content/experience.json, content/publications.json, and content/site.ts, then run npm run check and npm run dev.`,
 );

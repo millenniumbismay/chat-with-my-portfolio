@@ -61,6 +61,12 @@
         },
         "scholar": {
           "type": "string"
+        },
+        "x": {
+          "type": "string"
+        },
+        "medium": {
+          "type": "string"
         }
       },
       "required": [
@@ -87,9 +93,35 @@
         },
         "showStudioLink": {
           "type": "boolean"
+        },
+        "socialLinks": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": ["github", "linkedin", "scholar", "x", "medium", "email"]
+          }
+        },
+        "sections": {
+          "type": "object",
+          "properties": {
+            "experience": {
+              "type": "boolean"
+            },
+            "publications": {
+              "type": "boolean"
+            },
+            "projects": {
+              "type": "boolean"
+            },
+            "blogs": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false,
+          "required": ["experience", "publications", "projects", "blogs"]
         }
       },
-      "required": ["description", "showStudioLink"],
+      "required": ["description", "showStudioLink", "socialLinks", "sections"],
       "additionalProperties": false
     },
     "assistant": {

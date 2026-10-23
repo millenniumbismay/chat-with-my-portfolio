@@ -1,6 +1,6 @@
 # Sources and updates
 
-The website and the assistant have separate, explicit publication paths. Edit `content/site.ts` for visible projects, papers, and blog pages. Update `content/knowledge.json` for what the assistant may discuss. Both changes become live after their respective build and deployment.
+The website and the assistant have separate, explicit publication paths. Edit `content/site.ts` for projects and blog pages, `content/experience.json` for roles, and `content/publications.json` for papers. See [public content configuration](content.md). Update `content/knowledge.json` for what the assistant may discuss. Both changes become live after their respective build and deployment.
 
 ## Current workflow
 
@@ -32,7 +32,7 @@ A source entry contains:
 4. Add the server route and studio interaction needed for the source, and extend configuration/schema validation if it has settings.
 5. Test import failure, limits, deduplication, approval, and excluded-source behavior. Mock external services in tests.
 
-The GitHub, LinkedIn, and Scholar adapters are working examples. LinkedIn accepts chosen profile text; Scholar supports its first public page (up to 100 articles) or a CSV export (up to 500 rows). Blocked Scholar requests report an export fallback. No full paper text, abstracts, citation counts, or detailed LinkedIn OAuth access are imported. Profile imports use stable IDs: unchanged text keeps its selection and changed text needs review again. Missing entries remain for manual review. Public content cards in content/site.ts are updated separately.
+The GitHub, LinkedIn, and Scholar adapters are working examples. LinkedIn accepts chosen profile text; Scholar supports its first public page (up to 100 articles) or a CSV export (up to 500 rows). Blocked Scholar requests report an export fallback. No full paper text, abstracts, citation counts, or detailed LinkedIn OAuth access are imported. Profile imports use stable IDs: unchanged text keeps its selection and changed text needs review again. Missing entries remain for manual review. Public presentation datasets are updated separately.
 
 The GitHub adapter fetches public summaries and intentionally does not authenticate visitors or request private repository access.
 

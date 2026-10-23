@@ -1,5 +1,7 @@
 // Public presentation content. Replace the samples with your own work.
 import config from "@/portfolio.config.json";
+import experienceData from "./experience.json";
+import publicationData from "./publications.json";
 export const profile = config.profile;
 export type Project = {
   id: string;
@@ -36,26 +38,29 @@ export const projects: Project[] = [
     body: "This is an example project slot, ready for a real repository. Replace the title, description, links, and this detail with the problem you tackled, your approach, and what you learned.\n\nUse the knowledge studio to import public GitHub repositories and select the ones your assistant should be able to discuss.",
   },
 ];
+export type Experience = {
+  id: string;
+  role: string;
+  organization: string;
+  startDate: string;
+  endDate: string | null;
+  location?: string;
+  description: string;
+  url?: string;
+};
+export const experience: Experience[] = experienceData.entries;
 export type Publication = {
   id: string;
   title: string;
+  authors: string[];
   venue: string;
   year: string;
   description: string;
   url?: string;
+  sourceUrl?: string;
   sample?: boolean;
 };
-export const publications: Publication[] = [
-  {
-    id: "publication-slot",
-    title: "A place for your next big question",
-    venue: "Your paper · Conference or journal",
-    year: "—",
-    description:
-      "Your research belongs here. Add a paper title, author list, abstract, and a link to the publication or preprint. This is a sample entry, not a published paper.",
-    sample: true,
-  },
-];
+export const publications: Publication[] = publicationData.entries;
 export type Post = {
   id: string;
   title: string;

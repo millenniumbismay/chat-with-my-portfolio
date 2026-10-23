@@ -21,16 +21,17 @@ npm run dev
 
 Requires **Node.js 22.13 or newer**. Open `http://127.0.0.1:8888`.
 
-The setup command creates your configuration and clears the inherited AI sources. It keeps a local backup in the ignored `.portfolio/backups/` folder. Sample projects and essays remain clearly marked so you can replace them at your own pace. You can omit `--github`; without `--name`, an interactive terminal asks for your name.
+The setup command creates your configuration and clears inherited experience, publications, and AI sources. It keeps a local backup in the ignored `.portfolio/backups/` folder. Sample projects and essays remain clearly marked so you can replace them at your own pace. You can omit `--github`; without `--name`, an interactive terminal asks for your name.
 
 You do **not** need an AI account or API key to try the design, reading pages, source studio, or demo conversation. Live answers about your own work need approved sources and a configured AI provider.
 
 ## What the portfolio includes
 
-- A minimal, text-first homepage with About, Publications, Projects, and a link to Blogs & Thoughts.
+- A minimal, text-first homepage with About, Experience, Publications, Projects, and a link to Blogs & Thoughts.
+- Accessible social logo links, with configurable URLs, order, and visibility.
 - A dedicated `/blogs/` index and separate blog reading pages with direct links and browser reload support.
 - A sticky writing navigation with your AI assistant available on the index and every article.
-- An **Ask about this** action beside every publication, project, and blog entry.
+- An **Ask about this** action beside every experience entry, publication, project, and blog entry.
 - A named AI assistant with a configurable role, tone, behavior, and custom prompt.
 - A sticky navigation bar; the AI orb moves beside your initials as its main prompt scrolls away.
 - Light and Palenight-inspired dark themes, with a navigation toggle and a saved per-portfolio preference. The first visit follows the device’s color scheme.
@@ -39,7 +40,7 @@ You do **not** need an AI account or API key to try the design, reading pages, s
 - Static output for GitHub Pages, plus a Cloudflare Worker for live chat.
 - Configuration validation, TypeScript checks, automated tests, and GitHub Actions.
 
-The current content is illustrative. The repository is not a claim that the sample essays, projects, or publication belong to a real research record.
+The current biography, experience, and publication list are populated from the supplied profiles and checked publication sources. Project and blog examples remain clearly marked as samples.
 
 ## One configuration, your own identity
 
@@ -79,15 +80,17 @@ See [all configuration options](docs/configuration.md).
 
 ## Add your work and keep it current
 
-There are two file content paths, plus optional backend publication:
+Public presentation content and AI knowledge use separate paths:
 
-| File                     | What it controls                                                                          |
-| ------------------------ | ----------------------------------------------------------------------------------------- |
-| `portfolio.config.json`  | Your identity, bio, links, interests, assistant, source settings, and deployment defaults |
-| `content/site.ts`        | Projects, publications, and blog entries displayed on the website                         |
-| `content/knowledge.json` | File fallback for reviewed AI references before a database snapshot is published          |
+| File                        | What it controls                                                                          |
+| --------------------------- | ----------------------------------------------------------------------------------------- |
+| `portfolio.config.json`     | Your identity, bio, links, interests, assistant, source settings, and deployment defaults |
+| `content/site.ts`           | Projects and blog entries displayed on the website                                        |
+| `content/experience.json`   | Public roles, organizations, dates, locations, and descriptions                           |
+| `content/publications.json` | Public papers, author lists, venues, overviews, and links                                 |
+| `content/knowledge.json`    | File fallback for reviewed AI references before a database snapshot is published          |
 
-New items added to `content/site.ts` appear after a rebuild and deployment. Blog pages are generated from their IDs. The assistant's knowledge is updated separately through reviewed sources; displaying an item on the website does not automatically approve it for AI answers.
+New items added to the public content files appear after a rebuild and deployment. See [content configuration](docs/content.md) for social icons, section visibility, experience, and papers. Blog pages are generated from their IDs. The assistant's knowledge is updated separately through reviewed sources; displaying an item on the website does not automatically approve it for AI answers.
 
 For AI updates with the backend:
 

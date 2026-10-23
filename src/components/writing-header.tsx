@@ -2,6 +2,7 @@ import { assistant } from "@/content/assistant";
 import { profile } from "@/content/site";
 import { Orb } from "@/ui/portfolio";
 import ThemeToggle from "./theme-toggle";
+import PortfolioNav from "./portfolio-nav";
 
 export default function WritingHeader({
   homeHref,
@@ -29,14 +30,7 @@ export default function WritingHeader({
         </button>
       </div>
       <div className="header-actions">
-        <nav aria-label="Main navigation">
-          <a href={`${homeHref}#about`}>About</a>
-          <a href={`${homeHref}#publications`}>Publications</a>
-          <a href={`${homeHref}#projects`}>Projects</a>
-          <a href={blogsHref} aria-current={isIndex ? "page" : undefined}>
-            Blogs & Thoughts
-          </a>
-        </nav>
+        <PortfolioNav homeHref={homeHref} blogsHref={blogsHref} writingIndex={isIndex} />
         <ThemeToggle />
       </div>
     </header>

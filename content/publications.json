@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/publications.schema.json",
+  "entries": [
+    {
+      "id": "selective-regenerative-decoding",
+      "title": "Selective Regenerative Decoding: Trajectory-Level Intervention for Inference-Time Reasoning",
+      "authors": [
+        "Sophia Xiao Pu",
+        "Yumo Xu",
+        "Sailik Sengupta",
+        "Millennium Bismay",
+        "Ruixue Lian",
+        "James Gung",
+        "Yi-an Lai",
+        "Arshit Gupta"
+      ],
+      "venue": "arXiv preprint · 2608.24338",
+      "year": "2026",
+      "description": "A decoding approach that keeps promising reasoning prefixes and regenerates degraded suffixes, rather than discarding whole candidate answers. The paper studies how this finer-grained intervention improves the tradeoff between reasoning quality and inference cost.",
+      "url": "https://arxiv.org/abs/2608.24338",
+      "sourceUrl": "https://scholar.google.com/citations?user=y_u_thUAAAAJ&hl=en"
+    },
+    {
+      "id": "choir",
+      "title": "CHOIR: Harmonizing Structured Persona Diversity for Robust Collaborative LLM Reasoning",
+      "authors": [
+        "Xiangjue Dong",
+        "Cong Wang",
+        "Maria Teleki",
+        "Millennium Bismay",
+        "Ruihong Huang",
+        "James Caverlee"
+      ],
+      "venue": "ACL · Long Papers",
+      "year": "2026",
+      "description": "CHOIR combines reasoning signals from multiple persona-conditioned paths during decoding. It treats differences between counterfactual personas as a resource for more robust reasoning, balancing agreement and divergence without retraining the underlying model.",
+      "url": "https://aclanthology.org/2026.acl-long.2175/",
+      "sourceUrl": "https://scholar.google.com/citations?user=y_u_thUAAAAJ&hl=en"
+    },
+    {
+      "id": "reasoningrec",
+      "title": "ReasoningRec: Bridging Personalized Recommendations and Human-Interpretable Explanations through LLM Reasoning",
+      "authors": ["Millennium Bismay", "Xiangjue Dong", "James Caverlee"],
+      "venue": "Findings of NAACL",
+      "year": "2025",
+      "description": "A recommendation framework that models preferences and explanatory reasoning with language models. A larger model generates synthetic explanations used to fine-tune a smaller model, connecting recommendation accuracy with explanations people can understand.",
+      "url": "https://aclanthology.org/2025.findings-naacl.454/",
+      "sourceUrl": "https://scholar.google.com/citations?user=y_u_thUAAAAJ&hl=en"
+    }
+  ]
+}

@@ -4,11 +4,11 @@ import Studio from "@/ui/studio";
 import BlogPost from "@/ui/blog-post";
 import Blogs from "@/ui/blogs";
 import config from "@/portfolio.config.json";
-import { profile, projects, publications, posts } from "@/content/site";
+import { profile, projects, publications, posts, experience } from "@/content/site";
 export const blogPosts = posts;
 export const portfolioConfig = config;
 export { themeBootstrap } from "@/lib/theme";
-export const portfolioContent = { profile, projects, publications, posts };
+export const portfolioContent = { profile, projects, publications, posts, experience };
 export function render(studio = false, postId?: string, blogs = false) {
   if (postId) {
     const post = posts.find((item) => item.id === postId);

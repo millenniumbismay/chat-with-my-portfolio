@@ -6,8 +6,18 @@ import config from "@/portfolio.config.json";
 import { assistant } from "@/content/assistant";
 import AIDock from "@/components/ai-dock";
 import ThemeToggle from "@/components/theme-toggle";
+import SocialLinks from "@/components/social-links";
+import PortfolioNav, { sectionVisible } from "@/components/portfolio-nav";
 import { apiFetch, usesDemoApi } from "@/client/api";
-import type { profile as profileType, Project, Publication } from "@/content/site";
+import type { profile as profileType, Project, Publication, Experience } from "@/content/site";
+
+function monthLabel(value: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${value}-01T00:00:00Z`));
+}
 
 type Message = {
   role: "user" | "assistant";
@@ -52,16 +62,17 @@ export default function Portfolio({
   profile,
   projects,
   publications,
+  experience,
 }: {
   profile: typeof profileType;
   projects: Project[];
   publications: Publication[];
+  experience: Experience[];
 }) {
   const [chatOpen, setChatOpen] = useState(false);
   const [initialQuestion, setInitialQuestion] = useState("");
   const [detail, setDetail] = useState<Detail | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [contact, setContact] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const aiSourceRef = useRef<HTMLSpanElement>(null);
   function ask(question = "") {
@@ -78,7 +89,6 @@ export default function Portfolio({
         event.altKey ||
         chatOpen ||
         detail ||
-        contact ||
         target?.closest("input, textarea, select, [contenteditable]")
       )
         return;
@@ -88,7 +98,7 @@ export default function Portfolio({
     }
     window.addEventListener("keydown", shortcut);
     return () => window.removeEventListener("keydown", shortcut);
-  }, [chatOpen, detail, contact]);
+  }, [chatOpen, detail]);
 
   return (
     <>
@@ -109,18 +119,7 @@ export default function Portfolio({
             </AIDock>
           </div>
           <div className="header-actions">
-            <nav aria-label="Main navigation">
-              {[
-                ["About", "#about"],
-                ["Publications", "#publications"],
-                ["Projects", "#projects"],
-                ["Blogs & Thoughts", "./blogs/"],
-              ].map(([label, href]) => (
-                <a key={href} href={href}>
-                  {label}
-                </a>
-              ))}
-            </nav>
+            <PortfolioNav blogsHref="./blogs/" />
             <ThemeToggle />
           </div>
         </header>
@@ -132,33 +131,9 @@ export default function Portfolio({
               <p>{profile.bio}</p>
               <p>{profile.about}</p>
             </div>
-            <div className="profile-links">
-              {profile.email && <a href={`mailto:${profile.email}`}>Email</a>}
-              {profile.github && (
-                <a href={profile.github} target="_blank" rel="noreferrer">
-                  GitHub
-                </a>
-              )}
-              {profile.linkedin && (
-                <a href={profile.linkedin} target="_blank" rel="noreferrer">
-                  LinkedIn
-                </a>
-              )}
-              {profile.scholar && (
-                <a href={profile.scholar} target="_blank" rel="noreferrer">
-                  Google Scholar
-                </a>
-              )}
-              {!profile.email && (
-                <button className="link-button" onClick={() => setContact(true)}>
-                  Get in touch
-                </button>
-              )}
-            </div>
+            <SocialLinks />
             {profile.sample && (
-              <p className="sample-note">
-                Preview: biography, publications, and writing are sample content.
-              </p>
+              <p className="sample-note">Preview: this biography is sample content.</p>
             )}
           </section>
 
@@ -195,116 +170,186 @@ export default function Portfolio({
             </button>
           </aside>
 
-          <section
-            className="content-section"
-            id="publications"
-            aria-labelledby="publications-heading"
-          >
-            <h2 id="publications-heading">Publications</h2>
-            <ul className="work-list">
-              {publications.map((pub) => (
-                <li key={pub.id} className="publication">
-                  <div className="entry-heading">
-                    <h3>
+          {sectionVisible("experience") && experience.length > 0 && (
+            <section
+              className="content-section"
+              id="experience"
+              aria-labelledby="experience-heading"
+            >
+              <h2 id="experience-heading">Experience</h2>
+              <ol className="work-list experience-list">
+                {experience.map((entry) => (
+                  <li key={entry.id}>
+                    <div className="entry-heading">
+                      <h3>{entry.role}</h3>
+                      <span className="entry-date">
+                        <time dateTime={entry.startDate}>{monthLabel(entry.startDate)}</time> –{" "}
+                        {entry.endDate ? (
+                          <time dateTime={entry.endDate}>{monthLabel(entry.endDate)}</time>
+                        ) : (
+                          "Present"
+                        )}
+                      </span>
+                    </div>
+                    <p className="experience-organization">
+                      {entry.url ? (
+                        <a href={entry.url} target="_blank" rel="noreferrer">
+                          {entry.organization}
+                        </a>
+                      ) : (
+                        entry.organization
+                      )}
+                      {entry.location && (
+                        <span className="experience-location">{entry.location}</span>
+                      )}
+                    </p>
+                    <p className="entry-description">{entry.description}</p>
+                    <div className="entry-links">
                       <button
-                        className="entry-title"
+                        className="link-button"
+                        onClick={() =>
+                          ask(
+                            `Tell me about your experience as ${entry.role} at ${entry.organization}`,
+                          )
+                        }
+                      >
+                        Ask about this
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
+
+          {sectionVisible("publications") && (
+            <section
+              className="content-section"
+              id="publications"
+              aria-labelledby="publications-heading"
+            >
+              <h2 id="publications-heading">Publications</h2>
+              <ul className="work-list">
+                {publications.map((pub) => (
+                  <li key={pub.id} className="publication">
+                    <div className="entry-heading">
+                      <h3>
+                        <button
+                          className="entry-title"
+                          aria-expanded={expanded === pub.id}
+                          aria-controls={`abstract-${pub.id}`}
+                          onClick={() => setExpanded(expanded === pub.id ? null : pub.id)}
+                        >
+                          {pub.title}
+                        </button>
+                      </h3>
+                      <span className="entry-date">{pub.year}</span>
+                    </div>
+                    <p className="entry-meta">
+                      {pub.venue}
+                      {pub.sample && <span className="sample-label">Sample</span>}
+                    </p>
+                    <p className="publication-authors">
+                      {pub.authors.map((author, index) => (
+                        <span key={`${author}-${index}`}>
+                          {index > 0 && ", "}
+                          {author === profile.name ? <strong>{author}</strong> : author}
+                        </span>
+                      ))}
+                    </p>
+                    <div className="entry-links">
+                      <button
+                        className="link-button"
                         aria-expanded={expanded === pub.id}
                         aria-controls={`abstract-${pub.id}`}
                         onClick={() => setExpanded(expanded === pub.id ? null : pub.id)}
                       >
-                        {pub.title}
+                        {expanded === pub.id ? "Hide overview" : "Overview"}
                       </button>
-                    </h3>
-                    <span className="entry-date">{pub.year}</span>
-                  </div>
-                  <p className="entry-meta">
-                    {pub.venue}
-                    {pub.sample && <span className="sample-label">Sample</span>}
-                  </p>
-                  <div className="entry-links">
-                    <button
-                      className="link-button"
-                      aria-expanded={expanded === pub.id}
-                      aria-controls={`abstract-${pub.id}`}
-                      onClick={() => setExpanded(expanded === pub.id ? null : pub.id)}
-                    >
-                      {expanded === pub.id ? "Hide abstract" : "Abstract"}
-                    </button>
-                    {pub.url && (
-                      <a href={pub.url} target="_blank" rel="noreferrer">
-                        Paper
-                      </a>
-                    )}
-                    <button
-                      className="link-button"
-                      onClick={() => ask(`Tell me about the publication “${pub.title}”`)}
-                    >
-                      Ask about this
-                    </button>
-                  </div>
-                  <div id={`abstract-${pub.id}`} className="abstract" hidden={expanded !== pub.id}>
-                    {pub.description}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="content-section" id="projects" aria-labelledby="projects-heading">
-            <h2 id="projects-heading">Selected projects</h2>
-            <ul className="work-list">
-              {projects.map((project) => (
-                <li key={project.id}>
-                  <div className="entry-heading">
-                    <h3>
+                      {pub.url && (
+                        <a href={pub.url} target="_blank" rel="noreferrer">
+                          Paper
+                        </a>
+                      )}
                       <button
-                        className="entry-title"
-                        onClick={() =>
-                          setDetail({
-                            title: project.title,
-                            category: project.category,
-                            body: project.body,
-                            url: project.url,
-                            sample: project.sample,
-                          })
-                        }
+                        className="link-button"
+                        onClick={() => ask(`Tell me about the publication “${pub.title}”`)}
                       >
-                        {project.title}
+                        Ask about this
                       </button>
-                    </h3>
-                    {project.sample && <span className="sample-label">Sample</span>}
-                  </div>
-                  <p className="entry-description">{project.description}</p>
-                  <div className="entry-links">
-                    <span className="entry-meta">{project.tags.join(" / ")}</span>
-                    {project.url && (
-                      <a href={project.url} target="_blank" rel="noreferrer">
-                        Source
-                      </a>
-                    )}
-                    <button
-                      className="link-button"
-                      onClick={() => ask(`Tell me about ${project.title}`)}
+                    </div>
+                    <div
+                      id={`abstract-${pub.id}`}
+                      className="abstract"
+                      hidden={expanded !== pub.id}
                     >
-                      Ask about this
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
+                      {pub.description}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
-          <section className="content-section" id="blogs" aria-labelledby="blogs-heading">
-            <h2 id="blogs-heading">
-              <a href="./blogs/">Blogs & Thoughts</a>
-            </h2>
-            <p className="entry-description">
-              Essays, working notes, and ideas I’m thinking through.
-            </p>
-            <a className="writing-index-link" href="./blogs/">
-              Browse all writing <ArrowRight size={13} />
-            </a>
-          </section>
+          {sectionVisible("projects") && (
+            <section className="content-section" id="projects" aria-labelledby="projects-heading">
+              <h2 id="projects-heading">Selected projects</h2>
+              <ul className="work-list">
+                {projects.map((project) => (
+                  <li key={project.id}>
+                    <div className="entry-heading">
+                      <h3>
+                        <button
+                          className="entry-title"
+                          onClick={() =>
+                            setDetail({
+                              title: project.title,
+                              category: project.category,
+                              body: project.body,
+                              url: project.url,
+                              sample: project.sample,
+                            })
+                          }
+                        >
+                          {project.title}
+                        </button>
+                      </h3>
+                      {project.sample && <span className="sample-label">Sample</span>}
+                    </div>
+                    <p className="entry-description">{project.description}</p>
+                    <div className="entry-links">
+                      <span className="entry-meta">{project.tags.join(" / ")}</span>
+                      {project.url && (
+                        <a href={project.url} target="_blank" rel="noreferrer">
+                          Source
+                        </a>
+                      )}
+                      <button
+                        className="link-button"
+                        onClick={() => ask(`Tell me about ${project.title}`)}
+                      >
+                        Ask about this
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {sectionVisible("blogs") && (
+            <section className="content-section" id="blogs" aria-labelledby="blogs-heading">
+              <h2 id="blogs-heading">
+                <a href="./blogs/">Blogs & Thoughts</a>
+              </h2>
+              <p className="entry-description">
+                Essays, working notes, and ideas I’m thinking through.
+              </p>
+              <a className="writing-index-link" href="./blogs/">
+                Browse all writing <ArrowRight size={13} />
+              </a>
+            </section>
+          )}
         </main>
         <footer className="footer">
           <span>
@@ -349,24 +394,6 @@ export default function Portfolio({
             }}
           >
             {assistant.action} about this <ArrowRight size={15} />
-          </button>
-        </Modal>
-      )}
-      {contact && (
-        <Modal onClose={() => setContact(false)}>
-          <h2>Get in touch</h2>
-          <p className="detail-body">
-            Contact links will appear here once the real profile is added. For now, you can meet{" "}
-            {assistant.name} in demo mode.
-          </p>
-          <button
-            className="button dark"
-            onClick={() => {
-              setContact(false);
-              ask();
-            }}
-          >
-            {assistant.action}
           </button>
         </Modal>
       )}

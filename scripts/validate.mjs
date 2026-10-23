@@ -44,6 +44,38 @@ export function validateConfig(config) {
   ensure(typeof config.profile.email === "string", "profile.email must be text.");
   for (const key of ["github", "linkedin"]) link(config.profile[key], `profile.${key}`);
   if (config.profile.scholar !== undefined) link(config.profile.scholar, "profile.scholar");
+  for (const key of ["x", "medium"])
+    if (config.profile[key] !== undefined) link(config.profile[key], `profile.${key}`);
+  {
+    ensure(
+      Array.isArray(config.site.socialLinks) &&
+        new Set(config.site.socialLinks).size === config.site.socialLinks.length &&
+        config.site.socialLinks.every((key) =>
+          ["github", "linkedin", "scholar", "x", "medium", "email"].includes(key),
+        ),
+      "site.socialLinks must contain unique supported social platforms.",
+    );
+  }
+  {
+    ensure(
+      config.site.sections &&
+        typeof config.site.sections === "object" &&
+        !Array.isArray(config.site.sections),
+      "site.sections must be an object.",
+    );
+    ensure(
+      ["experience", "publications", "projects", "blogs"].every(
+        (key) => typeof config.site.sections[key] === "boolean",
+      ),
+      "site.sections needs experience, publications, projects, and blogs booleans.",
+    );
+    for (const [key, value] of Object.entries(config.site.sections))
+      ensure(
+        ["experience", "publications", "projects", "blogs"].includes(key) &&
+          typeof value === "boolean",
+        "site.sections contains an unsupported section or non-boolean setting.",
+      );
+  }
   ensure(
     Array.isArray(config.profile.interests) && config.profile.interests.length <= 20,
     "profile.interests must be an array of at most 20 items.",
@@ -153,6 +185,28 @@ export function validateKnowledge(knowledge) {
   }
 }
 export function validateContent(content) {
+  ensure(
+    Array.isArray(content.experience) && content.experience.length <= 100,
+    "Experience must be an array of at most 100 roles.",
+  );
+  const experienceIds = new Set();
+  for (const entry of content.experience) {
+    ensure(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(entry?.id || "") && !experienceIds.has(entry.id),
+      "Experience IDs must be unique lowercase slugs.",
+    );
+    experienceIds.add(entry.id);
+    for (const key of ["role", "organization", "description"])
+      text(entry[key], `Experience ${key}`, key === "description" ? 4000 : 200);
+    const month = (value) => typeof value === "string" && /^[0-9]{4}-(0[1-9]|1[0-2])$/.test(value);
+    ensure(
+      month(entry.startDate) &&
+        (entry.endDate === null || (month(entry.endDate) && entry.endDate >= entry.startDate)),
+      "Experience dates must be YYYY-MM, with an end month at or after the start (or null for a current role).",
+    );
+    if (entry.url) link(entry.url, "Experience source URL");
+    if (entry.location !== undefined) text(entry.location, "Experience location");
+  }
   for (const kind of ["projects", "publications", "posts"]) {
     ensure(Array.isArray(content[kind]), `${kind} must be an array.`);
     const ids = new Set();
@@ -167,6 +221,16 @@ export function validateContent(content) {
       text(item.title, `${kind} title`);
       text(item.description, `${kind} description`, 4000);
       if (kind !== "publications") text(item.body, `${kind} body`, 100000);
+      else {
+        text(item.venue, "Publication venue");
+        ensure(/^[0-9]{4}$/.test(item.year), "Publication year must have four digits.");
+        ensure(
+          Array.isArray(item.authors) && item.authors.length > 0 && item.authors.length <= 100,
+          "Each publication needs an author list.",
+        );
+        item.authors.forEach((author) => text(author, "Publication author"));
+        if (item.sourceUrl) link(item.sourceUrl, "Publication metadata source URL");
+      }
       if (item.url) link(item.url, `${kind} source URL`);
     }
   }
@@ -177,6 +241,14 @@ export async function validateProject(root = resolve(import.meta.dirname, ".."))
   validateConfig(config);
   validateKnowledge(knowledge);
   validateKnowledge(JSON.parse(await readFile(join(root, "content/source-drafts.json"), "utf8")));
+  const experience = JSON.parse(await readFile(join(root, "content/experience.json"), "utf8"));
+  const publications = JSON.parse(await readFile(join(root, "content/publications.json"), "utf8"));
+  validateContent({
+    experience: experience.entries,
+    publications: publications.entries,
+    projects: [],
+    posts: [],
+  });
   return config;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

@@ -6,19 +6,28 @@
     "name": "Millennium Bismay",
     "firstName": "Bismay",
     "initials": "MB",
-    "sample": true,
+    "sample": false,
     "tagline": "A researcher’s curiosity. A builder’s instinct.",
-    "bio": "I’m drawn to the space between an interesting question and something you can actually use. This is my little corner of the internet: a collection of projects, research, and thoughts in progress.",
-    "about": "Good work starts with a good question. I like taking ideas apart, finding the interesting pieces, and putting them back together in unexpected ways. Here, I share the process as much as the outcome.",
+    "bio": "I’m an Applied Scientist II at Amazon, working on Amazon Quick. My interests span retrieval, language-model reasoning, and personalized AI.",
+    "about": "I hold an M.S. in Computer Science from Texas A&M University. Here I share my research, professional experience, and ideas in progress.",
     "email": "",
-    "github": "",
+    "github": "https://github.com/millenniumbismay",
     "linkedin": "https://www.linkedin.com/in/millennium-bismay",
-    "interests": ["Artificial intelligence", "Human-centered tools", "Open source"],
-    "scholar": "https://scholar.google.com/citations?user=y_u_thUAAAAJ&hl=en"
+    "interests": ["Retrieval-augmented generation", "LLM reasoning", "Recommendation systems"],
+    "scholar": "https://scholar.google.com/citations?user=y_u_thUAAAAJ&hl=en",
+    "x": "",
+    "medium": ""
   },
   "site": {
-    "description": "Projects, publications, and notes on artificial intelligence.",
-    "showStudioLink": true
+    "description": "Millennium Bismay — Applied Scientist at Amazon. Experience, publications, and writing on retrieval, reasoning, and personalized AI.",
+    "showStudioLink": true,
+    "socialLinks": ["github", "linkedin", "scholar", "x", "medium", "email"],
+    "sections": {
+      "experience": true,
+      "publications": true,
+      "projects": true,
+      "blogs": true
+    }
   },
   "assistant": {
     "name": "Baymax",

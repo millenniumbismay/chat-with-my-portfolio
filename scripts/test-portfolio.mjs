@@ -4,7 +4,7 @@ import { createRequire } from "node:module";
 import { join, resolve } from "node:path";
 import { build } from "esbuild";
 import { runInNewContext } from "node:vm";
-import { validateConfig, validateKnowledge } from "./validate.mjs";
+import { validateConfig, validateKnowledge, validateContent } from "./validate.mjs";
 import worker from "../dist/server/index.js";
 
 const root = resolve(import.meta.dirname, "..");
@@ -161,13 +161,43 @@ check(
 );
 check(
   (homeText.match(/>Ask about this<\/button>/g) || []).length ===
-    content.projects.length + content.publications.length,
-  "Homepage project and publication items retain their ask actions",
+    (config.site.sections.projects ? content.projects.length : 0) +
+      (config.site.sections.publications ? content.publications.length : 0) +
+      (config.site.sections.experience ? content.experience.length : 0),
+  "Visible experience, project, and publication items retain their ask actions",
 );
 check(
-  homeText.includes('href="./blogs/"') && !homeText.includes('class="writing-list"'),
+  homeText.includes('href="./blogs/"') === config.site.sections.blogs &&
+    !homeText.includes('class="writing-list"'),
   "Homepage opens the writing index instead of displaying posts inline",
 );
+for (const entry of content.experience) {
+  if (!config.site.sections.experience) break;
+  check(
+    homeText.toLowerCase().includes(`datetime="${entry.startDate}"`) &&
+      homeText.includes(entry.role) &&
+      homeText.includes(entry.organization.replace(/&/g, "&amp;")),
+    "Configured experience roles render with machine-readable dates",
+  );
+}
+for (const publication of content.publications) {
+  if (!config.site.sections.publications) break;
+  check(
+    homeText.includes(`href="${publication.url}"`) &&
+      publication.authors.every((author) => homeText.includes(author)),
+    "Configured papers render canonical links and all authors",
+  );
+}
+for (const platform of config.site.socialLinks) {
+  const url = config.profile[platform];
+  if (!url) continue;
+  check(
+    homeText.includes(
+      `href="${platform === "email" ? "mailto:" : ""}${url.replace(/&/g, "&amp;")}"`,
+    ) && homeText.includes('class="social-link"'),
+    "Configured social URLs render as accessible logo links",
+  );
+}
 const writingResponse = await worker.fetch(request("/blogs/"));
 const writingText = await writingResponse.text();
 const writingHeader =
@@ -176,10 +206,14 @@ check(
   writingResponse.status === 200 &&
     writingText.includes("<h1>Blogs &amp; Thoughts</h1>") &&
     writingHeader.includes(`Ask ${config.assistant.name}`) &&
-    ["about", "publications", "projects"].every((section) =>
-      writingHeader.includes(`href="../#${section}"`),
-    ) &&
-    writingHeader.includes('aria-current="page"'),
+    [
+      "about",
+      ...["experience", "publications", "projects"].filter(
+        (section) =>
+          config.site.sections[section] && (section !== "experience" || content.experience.length),
+      ),
+    ].every((section) => writingHeader.includes(`href="../#${section}"`)) &&
+    writingHeader.includes('aria-current="page"') === config.site.sections.blogs,
   "Writing index keeps the full portfolio navigation and named assistant in its header",
 );
 check(writingHeader.includes('aria-label="Dark theme"'), "Writing index retains the theme toggle");
@@ -211,9 +245,14 @@ for (const post of content.posts) {
   check(
     response.status === 200 &&
       articleText.includes("Back to all posts") &&
-      ["about", "publications", "projects"].every((section) =>
-        articleText.includes(`href="../../#${section}"`),
-      ),
+      [
+        "about",
+        ...["experience", "publications", "projects"].filter(
+          (section) =>
+            config.site.sections[section] &&
+            (section !== "experience" || content.experience.length),
+        ),
+      ].every((section) => articleText.includes(`href="../../#${section}"`)),
     "Worker serves a direct article URL with the full portfolio navigation",
   );
   check(
@@ -255,6 +294,11 @@ fork.assistant.tone = "precise and encouraging";
 fork.assistant.behavior = ["Explain ideas using concrete examples."];
 fork.assistant.prompt = "CUSTOM_OWNER_PROMPT: Focus on research methods.";
 fork.sources.github.enabled = true;
+fork.site.sections.experience = false;
+fork.site.sections.publications = false;
+fork.site.socialLinks = ["x", "linkedin"];
+fork.profile.x = "https://x.com/alexriver";
+fork.profile.linkedin = "https://www.linkedin.com/in/alex-river/";
 const fixture = {
   version: 1,
   demo: false,
@@ -282,6 +326,36 @@ const plugin = {
   setup(builder) {
     builder.onLoad({ filter: /portfolio\.config\.json$/ }, () => ({
       contents: JSON.stringify(fork),
+      loader: "json",
+    }));
+    builder.onLoad({ filter: /content\/experience\.json$/ }, () => ({
+      contents: JSON.stringify({
+        entries: [
+          {
+            id: "hidden-role",
+            role: "Hidden role",
+            organization: "Example organization",
+            startDate: "2024-01",
+            endDate: null,
+            description: "Example work",
+          },
+        ],
+      }),
+      loader: "json",
+    }));
+    builder.onLoad({ filter: /content\/publications\.json$/ }, () => ({
+      contents: JSON.stringify({
+        entries: [
+          {
+            id: "hidden-paper",
+            title: "Hidden paper",
+            authors: ["Alex River"],
+            venue: "Example venue",
+            year: "2025",
+            description: "Example research",
+          },
+        ],
+      }),
       loader: "json",
     }));
     builder.onLoad({ filter: /content\/knowledge\.json$/ }, () => ({
@@ -472,6 +546,31 @@ check(
     !forkHtml.includes("Millennium Bismay"),
   "Forked UI has no original owner or assistant branding",
 );
+check(
+  !forkHtml.includes('id="experience"') &&
+    !forkHtml.includes('id="publications"') &&
+    !forkHtml.includes("Hidden role") &&
+    !forkHtml.includes("Hidden paper"),
+  "Section configuration hides both navigation and public presentation entries",
+);
+check(
+  forkHtml.includes('aria-label="X"') &&
+    forkHtml.indexOf('aria-label="X"') < forkHtml.indexOf('aria-label="LinkedIn"') &&
+    !forkHtml.includes('aria-label="GitHub"'),
+  "Social configuration controls icon order and visibility",
+);
+const invalidDates = structuredClone(content);
+invalidDates.experience = [
+  {
+    id: "bad-role",
+    role: "Example",
+    organization: "Example",
+    startDate: "2025-04",
+    endDate: "2024-01",
+    description: "Example",
+  },
+];
+rejects(() => validateContent(invalidDates), "Experience end dates cannot precede start dates");
 const forkWriting = require(join(root, ".portfolio/fork-render.cjs")).render(
   false,
   undefined,
