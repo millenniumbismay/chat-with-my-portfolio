@@ -77,14 +77,16 @@ for (const post of blogPosts) {
     throw new Error("Blog IDs must be unique lowercase URL slugs.");
   blogIds.add(post.id);
 }
-function html(studio = false, staticSite = false, post = undefined) {
+function html(studio = false, staticSite = false, post = undefined, blogs = false) {
   const title = post
     ? `${post.title} — ${config.profile.name}`
     : studio
       ? `Source studio — ${config.profile.name}`
-      : config.profile.name;
+      : blogs
+        ? `Blogs & Thoughts — ${config.profile.name}`
+        : config.profile.name;
   const description = post?.description || config.site.description;
-  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${escapeHtml(description)}"><meta name="theme-color" content="#ffffff"><meta name="portfolio-static" content="${staticSite}"><meta name="portfolio-api" content="${staticSite ? escapeHtml(apiBase) : ""}"><meta name="portfolio-post" content="${post ? escapeHtml(post.id) : ""}"><title>${escapeHtml(title)}</title><link rel="icon" href="data:image/svg+xml,${encodeURIComponent(favicon)}"><style>${css}</style></head><body><div id="root">${render(studio, post?.id)}</div><script>${js}</script></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${escapeHtml(description)}"><meta name="theme-color" content="#ffffff"><meta name="portfolio-static" content="${staticSite}"><meta name="portfolio-api" content="${staticSite ? escapeHtml(apiBase) : ""}"><meta name="portfolio-page" content="${blogs ? "blogs" : studio ? "studio" : post ? "post" : "home"}"><meta name="portfolio-post" content="${post ? escapeHtml(post.id) : ""}"><title>${escapeHtml(title)}</title><link rel="icon" href="data:image/svg+xml,${encodeURIComponent(favicon)}"><style>${css}</style></head><body><div id="root">${render(studio, post?.id, blogs)}</div><script>${js}</script></body></html>`;
 }
 // Remove generated article files so deleted posts cannot remain published.
 await rm(join(root, "dist/pages"), { recursive: true, force: true });
@@ -92,16 +94,26 @@ await rm(join(root, "preview"), { recursive: true, force: true });
 const pages = {
   home: html(),
   studio: html(true),
+  writing: html(false, false, undefined, true),
   favicon,
   blogs: Object.fromEntries(blogPosts.map((post) => [post.id, html(false, false, post)])),
 };
-for (const directory of ["dist/server", "dist/.openai", "dist/pages/studio", "preview"]) {
+for (const directory of [
+  "dist/server",
+  "dist/.openai",
+  "dist/pages/studio",
+  "dist/pages/blogs",
+  "preview/blogs",
+]) {
   await mkdir(join(root, directory), { recursive: true });
 }
 await writeFile(join(root, "preview/index.html"), html(false, true));
 await writeFile(join(root, "preview/studio.html"), html(true, true));
 await writeFile(join(root, "dist/pages/index.html"), html(false, true));
 await writeFile(join(root, "dist/pages/studio/index.html"), html(true, true));
+for (const base of ["dist/pages", "preview"]) {
+  await writeFile(join(root, base, "blogs/index.html"), html(false, true, undefined, true));
+}
 await writeFile(join(root, "dist/pages/.nojekyll"), "");
 for (const post of blogPosts) {
   const page = html(false, true, post);

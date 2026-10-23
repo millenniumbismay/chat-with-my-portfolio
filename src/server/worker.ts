@@ -6,6 +6,7 @@ import homeHtml from "virtual:home";
 import studioHtml from "virtual:studio";
 import favicon from "virtual:favicon";
 import blogHtml from "virtual:blogs";
+import writingHtml from "virtual:writing";
 
 export default {
   async fetch(request: Request, env: Record<string, string> = {}) {
@@ -50,9 +51,11 @@ export default {
         ? homeHtml
         : path === "/studio" || path === "/studio/"
           ? studioHtml
-          : blogId && Object.hasOwn(blogHtml, blogId)
-            ? blogHtml[blogId]
-            : null;
+          : path === "/blogs" || path === "/blogs/"
+            ? writingHtml
+            : blogId && Object.hasOwn(blogHtml, blogId)
+              ? blogHtml[blogId]
+              : null;
     if (!page) return new Response("Page not found", { status: 404 });
     return new Response(request.method === "HEAD" ? null : page, {
       headers: {

@@ -1,8 +1,8 @@
 "use client";
 
-import { assistant } from "@/content/assistant";
 import { useState } from "react";
-import { Chat, Orb } from "./portfolio";
+import { Chat } from "./portfolio";
+import WritingHeader from "@/components/writing-header";
 import { usesDemoApi } from "@/client/api";
 import { profile, type Post } from "@/content/site";
 
@@ -14,28 +14,7 @@ export default function BlogPost({ post }: { post: Post }) {
         Skip to article
       </a>
       <div className="shell portfolio-shell">
-        <header className="site-header">
-          <div className="header-identity">
-            <a href="../../" className="wordmark" aria-label="Back to portfolio">
-              {profile.initials}
-              <span className="wordmark-dot">.</span>
-            </a>
-            <button
-              className="nav-ai-button"
-              type="button"
-              onClick={() => setChatOpen(true)}
-              aria-label={`${assistant.action} about this post`}
-              title={assistant.action}
-            >
-              <span className="mini-orb">
-                <Orb small />
-              </span>
-            </button>
-          </div>
-          <nav aria-label="Article navigation">
-            <a href="../../#blogs">All posts</a>
-          </nav>
-        </header>
+        <WritingHeader homeHref="../../" blogsHref="../../blogs/" onAsk={() => setChatOpen(true)} />
         <main id="article" className="blog-article">
           <article>
             <header className="article-header">
@@ -59,7 +38,7 @@ export default function BlogPost({ post }: { post: Post }) {
               <button className="link-button" onClick={() => setChatOpen(true)}>
                 Ask about this
               </button>
-              <a href="../../#blogs">Back to all posts</a>
+              <a href="../../blogs/">Back to all posts</a>
             </div>
           </article>
         </main>

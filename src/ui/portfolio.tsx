@@ -6,7 +6,7 @@ import config from "@/portfolio.config.json";
 import { assistant } from "@/content/assistant";
 import AIDock from "@/components/ai-dock";
 import { apiFetch, usesDemoApi } from "@/client/api";
-import type { profile as profileType, Project, Publication, Post } from "@/content/site";
+import type { profile as profileType, Project, Publication } from "@/content/site";
 
 type Message = {
   role: "user" | "assistant";
@@ -51,12 +51,10 @@ export default function Portfolio({
   profile,
   projects,
   publications,
-  posts,
 }: {
   profile: typeof profileType;
   projects: Project[];
   publications: Publication[];
-  posts: Post[];
 }) {
   const [chatOpen, setChatOpen] = useState(false);
   const [initialQuestion, setInitialQuestion] = useState("");
@@ -114,7 +112,7 @@ export default function Portfolio({
               ["About", "#about"],
               ["Publications", "#publications"],
               ["Projects", "#projects"],
-              ["Blogs", "#blogs"],
+              ["Blogs & Thoughts", "./blogs/"],
             ].map(([label, href]) => (
               <a key={href} href={href}>
                 {label}
@@ -288,32 +286,15 @@ export default function Portfolio({
           </section>
 
           <section className="content-section" id="blogs" aria-labelledby="blogs-heading">
-            <h2 id="blogs-heading">Blogs & notes</h2>
-            <ul className="writing-list">
-              {posts.map((post) => (
-                <li key={post.id}>
-                  <h3>
-                    <a className="entry-title" href={`./blog/${post.id}/`}>
-                      {post.title}
-                    </a>
-                  </h3>
-                  <p className="entry-description">{post.description}</p>
-                  <div className="entry-links">
-                    <span className="entry-meta">
-                      {post.date}
-                      <span className="meta-divider">/</span>
-                      {post.readTime}
-                    </span>
-                    <button
-                      className="link-button"
-                      onClick={() => ask(`Tell me about the blog post “${post.title}”`)}
-                    >
-                      Ask about this
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <h2 id="blogs-heading">
+              <a href="./blogs/">Blogs & Thoughts</a>
+            </h2>
+            <p className="entry-description">
+              Essays, working notes, and ideas I’m thinking through.
+            </p>
+            <a className="writing-index-link" href="./blogs/">
+              Browse all writing <ArrowRight size={13} />
+            </a>
           </section>
         </main>
         <footer className="footer">

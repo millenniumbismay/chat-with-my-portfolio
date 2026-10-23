@@ -27,8 +27,9 @@ You do **not** need an AI account or API key to try the design, reading pages, s
 
 ## What the portfolio includes
 
-- A minimal, text-first homepage with About, Publications, Projects, and Blogs.
-- Separate blog reading pages with direct links and browser reload support.
+- A minimal, text-first homepage with About, Publications, Projects, and a link to Blogs & Thoughts.
+- A dedicated `/blogs/` index and separate blog reading pages with direct links and browser reload support.
+- A sticky writing navigation with your AI assistant available on the index and every article.
 - An **Ask about this** action beside every publication, project, and blog entry.
 - A named AI assistant with a configurable role, tone, behavior, and custom prompt.
 - A sticky navigation bar; the AI orb moves beside your initials as its main prompt scrolls away.

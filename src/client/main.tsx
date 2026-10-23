@@ -2,6 +2,7 @@ import { hydrateRoot } from "react-dom/client";
 import Home from "@/ui/home";
 import Studio from "@/ui/studio";
 import BlogPost from "@/ui/blog-post";
+import Blogs from "@/ui/blogs";
 import { posts } from "@/content/site";
 
 const filePreview = location.protocol === "file:";
@@ -11,9 +12,11 @@ const isStudio =
   location.pathname.endsWith("/studio.html");
 const postId = document.querySelector<HTMLMetaElement>('meta[name="portfolio-post"]')?.content;
 const post = posts.find((item) => item.id === postId);
+const isBlogs =
+  document.querySelector<HTMLMetaElement>('meta[name="portfolio-page"]')?.content === "blogs";
 hydrateRoot(
   document.getElementById("root")!,
-  post ? <BlogPost post={post} /> : isStudio ? <Studio /> : <Home />,
+  post ? <BlogPost post={post} /> : isStudio ? <Studio /> : isBlogs ? <Blogs /> : <Home />,
 );
 if (filePreview) {
   document.addEventListener("click", (event) => {

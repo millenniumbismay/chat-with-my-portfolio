@@ -121,11 +121,47 @@ check(
 );
 check(
   (homeText.match(/>Ask about this<\/button>/g) || []).length ===
-    content.projects.length + content.publications.length + content.posts.length,
-  "Every content item has an ask action",
+    content.projects.length + content.publications.length,
+  "Homepage project and publication items retain their ask actions",
+);
+check(
+  homeText.includes('href="./blogs/"') && !homeText.includes('class="writing-list"'),
+  "Homepage opens the writing index instead of displaying posts inline",
+);
+const writingResponse = await worker.fetch(request("/blogs/"));
+const writingText = await writingResponse.text();
+const writingHeader =
+  writingText.match(/<header class="site-header writing-header">[\s\S]*?<\/header>/)?.[0] || "";
+check(
+  writingResponse.status === 200 &&
+    writingText.includes("<h1>Blogs &amp; Thoughts</h1>") &&
+    writingHeader.includes(`Ask ${config.assistant.name}`) &&
+    writingHeader.includes('aria-current="page"'),
+  "Writing index has its own page and a persistent named assistant in its header",
+);
+check(
+  (writingText.match(/>Ask about this<\/button>/g) || []).length === content.posts.length,
+  "Every post on the writing index has an ask action",
+);
+const staticWriting = await readFile(join(root, "dist/pages/blogs/index.html"), "utf8");
+check(
+  staticWriting.includes('name="portfolio-page" content="blogs"') &&
+    staticWriting.includes('href="../"') &&
+    (await readFile(join(root, "preview/blogs/index.html"), "utf8")).includes(
+      "<h1>Blogs &amp; Thoughts</h1>",
+    ),
+  "Pages and local previews export the writing index with hydration and relative navigation",
+);
+check(
+  (await worker.fetch(request("/blogs"))).status === 200 &&
+    (await worker.fetch(request("/blogs/", undefined, { method: "HEAD" }))).status === 200,
+  "Writing index supports direct navigation and HEAD requests",
 );
 for (const post of content.posts) {
-  check(staticHome.includes(`href="./blog/${post.id}/"`), "Blog links to its own page");
+  check(
+    staticWriting.includes(`href="../blog/${post.id}/"`),
+    "Writing index links to each article",
+  );
   const response = await worker.fetch(request(`/blog/${post.id}/`));
   check(
     response.status === 200 && (await response.text()).includes("Back to all posts"),
@@ -133,7 +169,7 @@ for (const post of content.posts) {
   );
   check(
     (await readFile(join(root, "dist/pages/blog", post.id, "index.html"), "utf8")).includes(
-      'href="../../#blogs"',
+      'href="../../blogs/"',
     ),
     "Static article preserves relative navigation",
   );
@@ -341,6 +377,17 @@ check(
     !forkHtml.includes("Baymax") &&
     !forkHtml.includes("Millennium Bismay"),
   "Forked UI has no original owner or assistant branding",
+);
+const forkWriting = require(join(root, ".portfolio/fork-render.cjs")).render(
+  false,
+  undefined,
+  true,
+);
+check(
+  forkWriting.includes("Ask Nova+") &&
+    forkWriting.includes("Alex River") &&
+    !forkWriting.includes("Baymax"),
+  "Writing navigation uses the fork's configured assistant and owner",
 );
 rejects(
   () => validateConfig({ ...config, assistant: { ...config.assistant, starterQuestions: [] } }),

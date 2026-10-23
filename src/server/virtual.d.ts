@@ -15,3 +15,8 @@ declare module "virtual:blogs" {
   const pages: Record<string, string>;
   export default pages;
 }
+
+declare module "virtual:writing" {
+  const html: string;
+  export default html;
+}
