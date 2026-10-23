@@ -136,8 +136,11 @@ check(
   writingResponse.status === 200 &&
     writingText.includes("<h1>Blogs &amp; Thoughts</h1>") &&
     writingHeader.includes(`Ask ${config.assistant.name}`) &&
+    ["about", "publications", "projects"].every((section) =>
+      writingHeader.includes(`href="../#${section}"`),
+    ) &&
     writingHeader.includes('aria-current="page"'),
-  "Writing index has its own page and a persistent named assistant in its header",
+  "Writing index keeps the full portfolio navigation and named assistant in its header",
 );
 check(
   (writingText.match(/>Ask about this<\/button>/g) || []).length === content.posts.length,
@@ -163,9 +166,14 @@ for (const post of content.posts) {
     "Writing index links to each article",
   );
   const response = await worker.fetch(request(`/blog/${post.id}/`));
+  const articleText = await response.text();
   check(
-    response.status === 200 && (await response.text()).includes("Back to all posts"),
-    "Worker serves a direct article URL",
+    response.status === 200 &&
+      articleText.includes("Back to all posts") &&
+      ["about", "publications", "projects"].every((section) =>
+        articleText.includes(`href="../../#${section}"`),
+      ),
+    "Worker serves a direct article URL with the full portfolio navigation",
   );
   check(
     (await readFile(join(root, "dist/pages/blog", post.id, "index.html"), "utf8")).includes(

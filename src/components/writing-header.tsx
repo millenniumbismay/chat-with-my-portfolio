@@ -27,10 +27,12 @@ export default function WritingHeader({
           <span>{assistant.action}</span>
         </button>
       </div>
-      <nav aria-label="Writing navigation">
-        <a href={homeHref}>Portfolio</a>
+      <nav aria-label="Main navigation">
+        <a href={`${homeHref}#about`}>About</a>
+        <a href={`${homeHref}#publications`}>Publications</a>
+        <a href={`${homeHref}#projects`}>Projects</a>
         <a href={blogsHref} aria-current={isIndex ? "page" : undefined}>
-          {isIndex ? "Blogs & Thoughts" : "All posts"}
+          Blogs & Thoughts
         </a>
       </nav>
     </header>
